@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
-
+import "../node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import "../node_modules/@openzeppelin/contracts/interfaces/IERC20.sol";
 
 //this vault will do arbitrage when the GHO price will be up-pegged
 contract BurraVault is ERC4626 {
@@ -26,12 +25,6 @@ contract BurraVault is ERC4626 {
 //      swap token asset to gho
 //      swap (sell) token asset to gho
 //      repay (sell) gho debt
-
-    // address assetAddress;
-
-    // constructor() ERC4626(IERC20("0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9")) ERC20("burra","br"){ 
-    // //    assetAddress = _assAddr;
-    // }
 
     constructor(ERC20 _asset) ERC4626 (_asset)  ERC20("Burra","bu"){}
 
