@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-import "../node_modules/@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 //this vault will do arbitrage when the GHO price will be up-pegged
 contract BurraVault is ERC4626 {
