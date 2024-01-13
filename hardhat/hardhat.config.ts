@@ -12,7 +12,7 @@ const config: HardhatUserConfig = {
       }],
       forking:{
         url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-        blockNumber: 5072177,
+        blockNumber: 5077937,
       }
     }
   },

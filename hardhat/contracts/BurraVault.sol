@@ -28,4 +28,5 @@ contract BurraVault is ERC4626 {
 
     constructor(ERC20 _asset) ERC4626 (_asset)  ERC20("Burra","bu"){}
 
+
 }
