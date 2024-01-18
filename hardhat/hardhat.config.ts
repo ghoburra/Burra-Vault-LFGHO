@@ -18,7 +18,7 @@ const config: HardhatUserConfig = {
         url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
         blockNumber: 5102534,
       }
-    }
+    },
   },
   solidity: "0.8.20",
 };

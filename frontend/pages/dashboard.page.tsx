@@ -11,8 +11,8 @@ import { ConnectWalletPaper } from '../src/components/ConnectWalletPaper';
 import { ContentContainer } from '../src/components/ContentContainer';
 import { MainLayout } from '../src/layouts/MainLayout';
 import { useWeb3Context } from '../src/libs/hooks/useWeb3Context';
-import { BurraTopPanel } from '../src/modules/burra/BurraTopPanel';
-import { BurraContentWrapper } from 'src/modules/burra/BurraContentWrapper';
+import { DashboardContentWrapper } from '../src/modules/dashboard/DashboardContentWrapper';
+import { DashboardTopPanel } from '../src/modules/dashboard/DashboardTopPanel';
 
 export default function Home() {
   const { currentAccount, loading: web3Loading } = useWeb3Context();
@@ -30,7 +30,7 @@ export default function Home() {
 
   return (
     <>
-      <BurraTopPanel />
+      <DashboardTopPanel />
 
       <ContentContainer>
         {currentAccount && !isPermissionsLoading && (
@@ -63,7 +63,7 @@ export default function Home() {
         )}
 
         {currentAccount && !isPermissionsLoading ? (
-          <BurraContentWrapper isBorrow={mode === 'borrow'} />
+          <DashboardContentWrapper isBorrow={mode === 'borrow'} />
         ) : (
           <ConnectWalletPaper loading={web3Loading} />
         )}

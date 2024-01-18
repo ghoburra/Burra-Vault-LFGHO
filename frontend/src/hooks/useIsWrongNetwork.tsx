@@ -10,7 +10,8 @@ export function useIsWrongNetwork(_requiredChainId?: number) {
   const isWrongNetwork = connectedChainId !== requiredChainId;
 
   return {
-    isWrongNetwork,
+    isWrongNetwork: false,
+    // isWrongNetwork,
     requiredChainId,
   };
 }

@@ -15,6 +15,11 @@ interface Navigation {
 
 export const navigation: Navigation[] = [
   {
+    link: ROUTES.burra,
+    title: t`Burra Facilitator`,
+    dataCy: 'menuBurra',
+  },
+  {
     link: ROUTES.dashboard,
     title: t`Dashboard`,
     dataCy: 'menuDashboard',

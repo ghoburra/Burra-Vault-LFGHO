@@ -10,6 +10,7 @@ import { BasicModal } from '../../primitives/BasicModal';
 import { ModalWrapper } from '../FlowCommons/ModalWrapper';
 import { BorrowModalContent } from './BorrowModalContent';
 import { GhoBorrowModalContent } from './GhoBorrowModalContent';
+import { GhoBorrowModalContentBurra } from './GhoBorrowModalContentBurra';
 
 export const BorrowModal = () => {
   const { type, close, args } = useModalContext() as ModalContextType<{
@@ -40,7 +41,7 @@ export const BorrowModal = () => {
       >
         {(params) =>
           displayGho({ symbol: params.symbol, currentMarket }) ? (
-            <GhoBorrowModalContent {...params} />
+            <GhoBorrowModalContentBurra {...params} />
           ) : (
             <BorrowModalContent
               {...params}
