@@ -8,16 +8,24 @@ import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {GhoToken} from "./GhoToken.sol";
 import {BurraNFT} from "./BurraNFT.sol";
 import {PriceConsumerV3} from "./PriceConsumerV3.sol";
+import "./aaveLibraries/WadRayMath.sol";
+import "./aaveLibraries/MathUtils.sol";
 
-//this vault will do arbitrage when the GHO price will be up-pegged
+/**
+@notice Ideally the users who mint here are advantaged because they have a different interest rate.
+I want to try to make up an  InterestStrategy to incetivize people to mintwhen gho market price is >1$ and burn when gho market price is < 1$
+Inspired by the discount on interest rate for stkAAVE holders
+*/
+
 contract ArbitrageVault is ERC4626 {
-    //Ideally the users who mint here are advantaged because they have a different interest rate.
-
-    // I want to try to make up an  InterestStrategy to incetivize people to mint when gho market price is >1$ and burn when gho market price is < 1$
-    // Inspired by the discount on interest rate for stkAAVE holders
+    struct InterestStrategy {
+        uint256 start_block;
+        uint256 rate;
+    }
 
     mapping(address => uint256) private usersToDeposit;
-    mapping(address => uint256) private userToInterestStrategy;
+    mapping(address => uint256) private usersToShares;
+    mapping(address => InterestStrategy) private userToInterestStrategy;
 
     GhoToken public gho;
     BurraNFT public burraNFT;
@@ -44,22 +52,126 @@ contract ArbitrageVault is ERC4626 {
         priceConsumerV3 = new PriceConsumerV3(aggregator);
     }
 
-    /**  @dev should:
-     deposit collateral (underlying asset defined in the vault)
-     set a discountRate (or interest rate dky) basing on gho market price
-                  check if holder has burraNFT, if so, user has more advantage
-     mint new gho
+    /**  
+    @dev should:
+     1. deposit collateral (underlying asset defined in the vault)
+        1a. give the borrower vault shares
+     2. set a discountRate (or interest rate dky) basing on gho market price
+                  2a.check if holder has burraNFT, if so, user has more advantage
+     3. mint new gho
      this should give as much gho as much deposit is put in the vault
      this should have a disadvantaging dicount strategy if gho price < 1
      this should have a advantaging dicount strategy if gho price > 1
     */
     function borrowGho(uint256 depositAmount) public {
-        _deposit(depositAmount);
+        //deposit and give shares
+        uint256 shares = previewDeposit(depositAmount);
+        _deposit(msg.sender, msg.sender, depositAmount, depositAmount);
+        usersToShares[msg.sender] = usersToShares[msg.sender] + shares;
+
+        // select interest strategy and mint GHO
         uint256 ghoMarketPrice = getGHOMarketPrice();
-        uint256 discountStrategy = _determineDiscountStrategy(ghoMarketPrice);
-        userToInterestStrategy[msg.sender] = 1 * discountStrategy;
+        uint256 interestRate = _determineInterestRate(ghoMarketPrice);
+        userToInterestStrategy[msg.sender] = InterestStrategy({
+            start_block: block.timestamp,
+            rate: 1 * interestRate
+        });
         _mintGHO(depositAmount);
-        emit GHOBorrowed(msg.sender, depositAmount, discountStrategy);
+        emit GHOBorrowed(msg.sender, depositAmount, interestRate);
+    }
+
+    function calculateInterest(
+        uint256 amount,
+        InterestStrategy memory strategy,
+        uint256 timestamp
+    ) public view returns (uint256) {
+        uint256 rate = WadRayMath.wadToRay(strategy.rate);
+        uint256 i = WadRayMath.rayToWad(
+            MathUtils.calculateLinearInterestAtTimestamp(
+                rate,
+                uint40(strategy.start_block),
+                uint40(timestamp)
+            )
+        );
+
+        return WadRayMath.wadMul((i - WadRayMath.WAD), amount) + amount;
+    }
+
+    function calculatePercentage(uint256 bps) public pure returns (uint256) {
+        return (1 * bps) / 10_000;
+    }
+
+    /**
+    @dev this function should repay a gho debt applying the interestStrategy when user borrowed GHO
+    revert if user doesn't have a deposit position in this vault
+     */
+    function repayGHO(uint256 nominalAmount) public {
+        uint256 totalDeposit = usersToDeposit[msg.sender];
+        require(totalDeposit > 0, "user has not a borrow position");
+        require(totalDeposit >= nominalAmount, "user want to repay more?");
+
+        uint256 debitPlusInterest = getTotalInterestToPay(
+            msg.sender,
+            nominalAmount,
+            block.timestamp
+        );
+
+        _withdraw(
+            msg.sender,
+            msg.sender,
+            address(this),
+            nominalAmount,
+            nominalAmount //should change to shares
+        );
+        // _withdrawCollateral(debitPlusInterest, totalDeposit);
+        _burnGHO(debitPlusInterest);
+        usersToDeposit[msg.sender] = totalDeposit - debitPlusInterest;
+        emit GHORepaid(msg.sender, nominalAmount, debitPlusInterest);
+    }
+
+    /**
+    @dev need to override that to move the funds accounting to who's buying the shares of the vault, same for transferfrom
+     */
+    function transfer(
+        address to,
+        uint256 value
+    ) public override(IERC20, ERC20) returns (bool) {
+        address owner = _msgSender();
+        uint256 shares = convertToShares(value);
+        _transfer(owner, to, value);
+        gho.transferFrom(owner, to, value);
+        usersToDeposit[to] = usersToDeposit[to] + value;
+        usersToDeposit[_msgSender()] = usersToDeposit[_msgSender()] - value;
+        usersToShares[to] = usersToShares[to] + shares;
+        usersToShares[_msgSender()] = usersToShares[_msgSender()] - shares;
+        return true;
+    }
+
+    /**
+    @dev need to override that to move the funds accounting to who's buying the shares of the vault, same for transferfrom
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public override(IERC20, ERC20) returns (bool) {
+        address spender = _msgSender();
+        uint256 shares = convertToShares(value);
+        _spendAllowance(from, spender, value);
+        _transfer(from, to, value);
+        gho.transferFrom(from, to, value);
+
+        usersToDeposit[to] = usersToDeposit[to] + value;
+        usersToDeposit[from] = usersToDeposit[from] - value;
+
+        usersToShares[to] = usersToShares[to] + shares;
+        usersToShares[from] = usersToShares[from] - shares;
+        return true;
+    }
+
+    ////////////////////////// internal functions //////////////////////////
+    function _mintGHO(uint256 amount) internal {
+        gho.mint(msg.sender, amount);
     }
 
     /**
@@ -69,106 +181,59 @@ contract ArbitrageVault is ERC4626 {
     otherwise should be very good, incentivizing user to mint
     @dev should fetch the current rates maybe
      */
-    function _determineDiscountStrategy(
+    function _determineInterestRate(
         uint256 ghoMarketPrice
-    ) internal view returns (uint256) {
-        uint256 priceMultiplier;
+    ) internal pure returns (uint256) {
+        uint256 rate;
         if (ghoMarketPrice >= 1000000000000000000) {
-            //set strategy for user
-            priceMultiplier = 1; 
+            rate = WadRayMath.wadDiv(
+                1000000000000000000,
+                100000000000000000000
+            );
         } else {
-            priceMultiplier = 3;
-            //set strategy for user
+            rate = WadRayMath.wadDiv(
+                3000000000000000000,
+                100000000000000000000
+            );
         }
-        uint256 tokenId = burraNFT.getTokenId(msg.sender);
-        if (tokenId != 0) {
-            //add advantage
-        }
-
-        return priceMultiplier;
-    }
-
-    function calculatePercentage(
-        uint256 amount,
-        uint256 bps
-    ) public pure returns (uint256) {
-        return (amount * bps) / 10_000;
-    }
-
-    function _deposit(uint256 depositAmount) internal {
-        IERC20 underlying = IERC20(asset());
-        require(
-            (underlying.balanceOf(msg.sender) >= depositAmount),
-            "Insufficient balance"
-        );
-        require(
-            (underlying.allowance(msg.sender, address(this)) == depositAmount),
-            "Insufficient allowance"
-        );
-
-        bool paymentSuccess = underlying.transferFrom(
-            msg.sender,
-            address(this),
-            depositAmount
-        );
-        require(paymentSuccess, "Could not transfer tokens from user to here");
-        usersToDeposit[msg.sender] = usersToDeposit[msg.sender] + depositAmount;
-    }
-
-    function _mintGHO(uint256 amount) internal {
-        gho.mint(msg.sender, amount);
+        return rate;
     }
 
     /**
-    @dev this function should repay a gho debt applying the interestStrategy when user borrowed GHO
-    revert if user doesn't have a deposit position in this vault
+    @dev overridden from ERC4626
      */
-    function repayGHO(uint256 ghoAmountToRepay) public {
-        uint256 totalDeposit = usersToDeposit[msg.sender];
-        require(
-            usersToDeposit[msg.sender] > 0,
-            "user has not a borrow position"
-        );
-
-        uint256 debitPlusInterest = getTotalInterestToPay(
-            msg.sender,
-            ghoAmountToRepay
-        );
-        _withdrawCollateral(debitPlusInterest, totalDeposit);
-        _burnGHO(ghoAmountToRepay);
-        emit GHORepaid(msg.sender, ghoAmountToRepay, debitPlusInterest);
+    function _deposit(
+        address caller,
+        address receiver,
+        uint256 assets,
+        uint256 shares
+    ) internal override {
+        IERC20 _asset = IERC20(asset());
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+        _mint(receiver, shares);
+        usersToDeposit[msg.sender] = usersToDeposit[msg.sender] + assets;
+        emit Deposit(caller, receiver, assets, shares);
     }
 
     /**
     @dev send back the collateral to the borrower before burning the gho tokens
      */
-    function _withdrawCollateral(
-        uint256 withdrawAmount,
-        uint256 totalDeposit
-    ) internal {
-        ERC20 underlying = ERC20(asset());
-        require(withdrawAmount <= totalDeposit, "Insufficient deposit");
-
-        require(
-            (underlying.balanceOf(address(this)) >= totalDeposit),
-            "Insufficient collateral"
-        );
-        underlying.approve(address(this), withdrawAmount);
-        bool paymentSuccess = underlying.transfer(msg.sender, withdrawAmount);
-        require(paymentSuccess, "Could not transfer tokens from vault to user");
-
-        usersToDeposit[msg.sender] = totalDeposit - withdrawAmount;
+    function _withdraw(
+        address caller,
+        address receiver,
+        address owner,
+        uint256 assets,
+        uint256 shares
+    ) internal override {
+        IERC20 _asset = IERC20(asset());
+        _burn(msg.sender, shares);
+        SafeERC20.safeTransfer(_asset, receiver, assets);
+        emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
     function _burnGHO(uint256 amount) internal {
-        gho.transferFrom(msg.sender, address(this), amount); // need to transfer here go first... maybe
-        uint256 balance = gho.balanceOf(msg.sender);
-        require(balance >= amount, "not enough balance to burn");
+        gho.transferFrom(msg.sender, address(this), amount);
         gho.burn(amount);
-
-        // issue a burraNFT, this NFT gives additional advantages when minting new GHO
-        burraNFT.mint(msg.sender, false);
-        userToInterestStrategy[msg.sender] = 0;
     }
 
     ////////////////////////// getters //////////////////////////
@@ -186,20 +251,24 @@ contract ArbitrageVault is ERC4626 {
 
     function getInterestStrategyForUser(
         address user
-    ) public view returns (uint256) {
+    ) public view returns (InterestStrategy memory) {
         return userToInterestStrategy[user];
     }
 
     function getTotalInterestToPay(
         address borrower,
-        uint256 ghoAmountToRepay
-    ) public view returns (uint256 debitPlusInterest) {
-        return
-            debitPlusInterest =
-                calculatePercentage(
-                    ghoAmountToRepay,
-                    userToInterestStrategy[borrower]
-                ) +
-                ghoAmountToRepay;
+        uint256 nominalAmount,
+        uint256 timestamp
+    ) public view returns (uint256) {
+        uint256 debitPlusInterest = calculateInterest(
+            nominalAmount,
+            userToInterestStrategy[borrower],
+            timestamp
+        );
+        return debitPlusInterest;
+    }
+
+    function getShareToken() public view returns (string memory) {
+        return name();
     }
 }

@@ -91,6 +91,9 @@ describe('ArbitrageVault', () => {
   it('Should verify that the underlying is DAI', async () => {
     expect(await vault.asset()).equals(DAI_ADDRESS)
   });
+  it('Get share token name', async () => {
+    expect(await vault.getShareToken()).equals("Burra")
+  });
   it('Should test an oracle to have the market price of gho', async () => {
     const ghoMarketPrice = await vault.getGHOMarketPrice()
     expect(ghoMarketPrice).greaterThan(0)
@@ -104,6 +107,7 @@ describe('ArbitrageVault', () => {
 
     const borrowTx = await vault.connect(deployer).borrowGho(depositAmount)
     await expect(borrowTx).to.emit(vault, 'GHOBorrowed');
+    await expect(borrowTx).to.emit(vault, 'Deposit');
     expect(await dai.balanceOf(VAULT_ADDRESS)).equals(depositAmount)
 
     expect(await vault.getDepositForUser(DEPLOYER_ADDRESS)).equals(depositAmount)
@@ -111,10 +115,13 @@ describe('ArbitrageVault', () => {
 
 
   });
-  it('Should allow user to Burn GHO and get back collateral', async () => {
+  it('Should allow user to repay GHO and get back collateral', async () => {
     //MINT GHO
     const depositAmount = 1000_000_000_000_000_000n
     await dai.connect(deployer).approve(vault, depositAmount)
+    await ghoToken.connect(deployer).approve(vault, depositAmount); // approving all
+
+    expect(await ghoToken.allowance(DEPLOYER_ADDRESS, vault)).equals(depositAmount)
     expect(await dai.allowance(DEPLOYER_ADDRESS, vault)).equals(depositAmount)
 
     const borrowTx = await vault.connect(deployer).borrowGho(depositAmount)
@@ -126,21 +133,57 @@ describe('ArbitrageVault', () => {
 
     const repayAmount = 1000_000_000_000_000_000n / 2n
 
-    await ghoToken.connect(deployer).approve(vault, repayAmount);
-    expect(await ghoToken.allowance(DEPLOYER_ADDRESS, vault)).equals(repayAmount)
-    const totalToPay = await vault.getTotalInterestToPay(DEPLOYER_ADDRESS, repayAmount)
-    // console.log("TOTAL INTEREST TO PAY:", totalToPay)
-    // console.log("total deposited", depositAmount)
-    // console.log("repay amount", repayAmount)
-    // console.log("GHO market price", await vault.getGHOMarketPrice())
-    // console.log("Interest strategy for user", await vault.getInterestStrategyForUser(DEPLOYER_ADDRESS))
+    // getting 100 blocks more
+    const timestamp = 1705499699+100;
+
+
+    const totalToPay = await vault.getTotalInterestToPay(DEPLOYER_ADDRESS, repayAmount, timestamp)
+
+
+
     const repayTx = await vault.connect(deployer).repayGHO(repayAmount)
     await expect(repayTx).to.emit(vault, 'GHORepaid');
 
     const depositAfterWithdraw = await vault.getDepositForUser(DEPLOYER_ADDRESS)
-    expect(depositAfterWithdraw).equals(depositAmount-totalToPay)
+
+    expect(depositAfterWithdraw).lessThan(totalToPay);
+
+    expect(await vault.balanceOf(DEPLOYER_ADDRESS)).lessThan(totalToPay);
 
   });
+
+  it('Should allow user sell Burra to a 3rd party, the shares and the deposit should be rebalanced betwwen buyer and seller', async () => {
+
+    const depositAmount = 1000_000_000_000_000_000n
+    await dai.connect(deployer).approve(vault, depositAmount)
+
+    expect(await dai.allowance(DEPLOYER_ADDRESS, vault)).equals(depositAmount)
+    expect(await vault.getDepositForUser(AN_USER_ADDRESS)).equals(0)
+
+    const borrowTx = await vault.connect(deployer).borrowGho(depositAmount)
+    await expect(borrowTx).to.emit(vault, 'GHOBorrowed');
+    expect(await dai.balanceOf(VAULT_ADDRESS)).equals(depositAmount)
+
+    expect(await vault.getDepositForUser(DEPLOYER_ADDRESS)).equals(depositAmount)
+    expect(await ghoToken.balanceOf(DEPLOYER_ADDRESS)).equals(depositAmount)
+    expect(await vault.balanceOf(DEPLOYER_ADDRESS)).equals(depositAmount)
+
+    const transferAmount = 1000_000_000_000_000_000n / 2n
+
+    //user approve gho for an infinite amount so the vault can do its things..
+    await ghoToken.connect(deployer).approve(VAULT_ADDRESS, depositAmount)
+
+
+    await vault.connect(deployer).transfer(AN_USER_ADDRESS, transferAmount)
+    expect(await vault.balanceOf(AN_USER_ADDRESS)).equals(transferAmount)
+    expect(await vault.balanceOf(AN_USER_ADDRESS)).equals(depositAmount - transferAmount)
+    expect(await vault.getDepositForUser(DEPLOYER_ADDRESS)).equals(depositAmount - transferAmount)
+    expect(await vault.getDepositForUser(AN_USER_ADDRESS)).equals(depositAmount - transferAmount)
+    expect(await ghoToken.balanceOf(AN_USER_ADDRESS)).equals(transferAmount)
+    expect(await ghoToken.balanceOf(DEPLOYER_ADDRESS)).equals(depositAmount - transferAmount)
+
+
+  })
 
 
 });
