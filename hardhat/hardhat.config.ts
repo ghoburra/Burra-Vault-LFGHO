@@ -9,10 +9,14 @@ const config: HardhatUserConfig = {
       accounts:[{
         privateKey: `${process.env.ACCOUNT_PK}`,
         balance:`${process.env.ACCOUNT_BALANCE}`
+      },
+      {
+        privateKey: `${process.env.ACCOUNT_2_PK}`,
+        balance:`${process.env.ACCOUNT_BALANCE}`
       }],
       forking:{
         url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-        blockNumber: 5077937,
+        blockNumber: 5102534,
       }
     }
   },
