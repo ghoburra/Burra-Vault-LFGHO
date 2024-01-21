@@ -1,4 +1,4 @@
-# Burra Vault
+#Burra Vault
 ## Overview
 Burra vault is a ERC 4626 vault which act as a GHO facilitator. It can mint GHO to users who deposit in the vault.
 The special thing of Burra is that it determines the interest borrow rate basing on the price. if GHO is overpegged, the rate will be smaller, incentivizing users to mint (borrow) GHO at a low interest.
