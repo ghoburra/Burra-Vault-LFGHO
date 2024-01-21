@@ -193,7 +193,7 @@ export const DashboardTopPanel = () => {
                 currentMarketData.halIntegration && (
                   <HALLink
                     healthFactor={user?.healthFactor || '-1'}
-                    marketName={currentMarketData.halIntegration.marketName}
+                    marketName={"Burra"}
                     integrationURL={currentMarketData.halIntegration.URL}
                   />
                 )
