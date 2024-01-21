@@ -201,7 +201,7 @@ contract ArbitrageVault is ERC4626 {
             }
 
             rate = WadRayMath.wadDiv(
-                baseRate + WadRayMath.wadMul(threshold, sensitivity),
+                baseRate - WadRayMath.wadMul(threshold, sensitivity),
                 WadRayMath.WAD
             );
         } else {
