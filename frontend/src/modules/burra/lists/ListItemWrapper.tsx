@@ -92,7 +92,7 @@ export const ListItemWrapper = ({
           <BorrowDisabledToolTip symbol={symbol} currentMarket={currentMarket} />
         )}
         {showSupplyCapTooltips && supplyCap.displayMaxedTooltip({ supplyCap })}
-        {showBorrowCapTooltips && borrowCap.displayMaxedTooltip({ borrowCap })}
+        {showBorrowCapTooltips && borrowCap?.displayMaxedTooltip({ borrowCap })}
         {showDebtCeilingTooltips && debtCeiling.displayMaxedTooltip({ debtCeiling })}
       </ListColumn>
       {children}

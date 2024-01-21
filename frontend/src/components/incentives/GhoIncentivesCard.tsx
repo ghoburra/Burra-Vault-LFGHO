@@ -93,7 +93,7 @@ export const GhoIncentivesCard = ({
         flex: '2 1 auto',
       }}
     >
-      {value.toString() !== '-1' ? (
+      {value?.toString() !== '-1' ? (
         <Tooltip
           enterTouchDelay={0}
           leaveTouchDelay={0}

@@ -31,6 +31,7 @@ export enum ModalType {
   StakeRewardsClaimRestake,
   Switch,
   GovRepresentatives,
+  ListBurraForSales,
 }
 
 export interface ModalArgsType {
@@ -75,6 +76,14 @@ export interface ModalContextType<T extends ModalArgsType> {
     isReserve?: boolean
   ) => void;
   openRepay: (
+    underlyingAsset: string,
+    currentRateMode: InterestRate,
+    isFrozen: boolean,
+    currentMarket: string,
+    name: string,
+    funnel: string
+  ) => void;
+  openListForSale: (
     underlyingAsset: string,
     currentRateMode: InterestRate,
     isFrozen: boolean,
@@ -200,6 +209,18 @@ export const ModalContextProvider: React.FC = ({ children }) => {
         },
         openRepay: (underlyingAsset, currentRateMode, isFrozen, currentMarket, name, funnel) => {
           setType(ModalType.Repay);
+          setArgs({ underlyingAsset, currentRateMode, isFrozen });
+
+          trackEvent(GENERAL.OPEN_MODAL, {
+            modal: 'Repay',
+            asset: underlyingAsset,
+            assetName: name,
+            market: currentMarket,
+            funnel,
+          });
+        },
+        openListForSale: (underlyingAsset, currentRateMode, isFrozen, currentMarket, name, funnel) => {
+          setType(ModalType.ListBurraForSales);
           setArgs({ underlyingAsset, currentRateMode, isFrozen });
 
           trackEvent(GENERAL.OPEN_MODAL, {

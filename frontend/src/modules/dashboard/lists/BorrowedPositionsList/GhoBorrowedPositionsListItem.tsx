@@ -167,7 +167,7 @@ const GhoBorrowedPositionsListItemDesktop = ({
           userQualifiesForDiscount={hasDiscount}
         />
       </ListColumn>
-      <ListColumn>
+      {/* <ListColumn>
         <ContentWithTooltip tooltipContent={FixedAPYTooltipText} offset={[0, -4]} withoutHover>
           <Button
             variant="outlined"
@@ -182,22 +182,9 @@ const GhoBorrowedPositionsListItemDesktop = ({
             </SvgIcon>
           </Button>
         </ContentWithTooltip>
-      </ListColumn>
+      </ListColumn> */}
       <ListButtonsColumn>
-        {showSwitchButton ? (
-          <Button
-            disabled={disableSwitch}
-            variant="contained"
-            onClick={onSwitchClick}
-            data-cy={`swapButton`}
-          >
-            <Trans>Switch</Trans>
-          </Button>
-        ) : (
-          <Button disabled={borrowDisabled} variant="outlined" onClick={onBorrowClick}>
-            <Trans>Borrow</Trans>
-          </Button>
-        )}
+        
         <Button disabled={disableRepay} variant="outlined" onClick={onRepayClick}>
           <Trans>Repay</Trans>
         </Button>

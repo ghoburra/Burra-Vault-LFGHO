@@ -13,6 +13,7 @@ import { ListAPRColumn } from '../ListAPRColumn';
 import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListItemWrapper } from '../ListItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const BorrowAssetsListItem = ({
   symbol,
@@ -29,6 +30,7 @@ export const BorrowAssetsListItem = ({
 }: DashboardReserve) => {
   const { openBorrow } = useModalContext();
   const { currentMarket } = useProtocolDataContext();
+  const { userPositionData } = useBurra();
 
   const disableBorrow = isFreezed || Number(availableBorrows) <= 0;
 
@@ -59,7 +61,7 @@ export const BorrowAssetsListItem = ({
         }
       />
       <ListAPRColumn
-        value={Number(variableBorrowRate)}
+        value={userPositionData?.interestStrategy.rate || 0.1}
         incentives={vIncentivesData}
         symbol={symbol}
       />

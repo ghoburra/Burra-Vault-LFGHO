@@ -24,11 +24,11 @@ contract ArbitrageVault is ERC4626 {
     }
 
     mapping(address => uint256) private usersToDeposit;
+    mapping(address => uint256) private listedBurra;
     mapping(address => uint256) private usersToShares;
     mapping(address => InterestStrategy) private userToInterestStrategy;
 
     GhoToken public gho;
-    BurraNFT public burraNFT;
     PriceConsumerV3 public priceConsumerV3;
 
     event GHOBorrowed(
@@ -41,6 +41,10 @@ contract ArbitrageVault is ERC4626 {
         uint256 amount,
         uint256 totalPaidInDollars
     );
+    event  BurraListed(
+        address indexed owner,
+        uint256 amount
+    );
 
     constructor(
         GhoToken _gho,
@@ -48,7 +52,6 @@ contract ArbitrageVault is ERC4626 {
         address aggregator
     ) ERC4626(_underlying) ERC20("Burra", "bu") {
         gho = _gho;
-        burraNFT = new BurraNFT(address(this));
         priceConsumerV3 = new PriceConsumerV3(aggregator);
     }
 
@@ -80,41 +83,17 @@ contract ArbitrageVault is ERC4626 {
         emit GHOBorrowed(msg.sender, depositAmount, interestRate);
     }
 
-    function calculateInterest(
-        uint256 amount,
-        InterestStrategy memory strategy,
-        uint256 timestamp
-    ) public view returns (uint256) {
-        uint256 rate = WadRayMath.wadToRay(strategy.rate);
-        uint256 i = WadRayMath.rayToWad(
-            MathUtils.calculateLinearInterestAtTimestamp(
-                rate,
-                uint40(strategy.start_block),
-                uint40(timestamp)
-            )
-        );
-
-        return WadRayMath.wadMul((i - WadRayMath.WAD), amount) + amount;
-    }
-
-    function calculatePercentage(uint256 bps) public pure returns (uint256) {
-        return (1 * bps) / 10_000;
-    }
-
     /**
     @dev this function should repay a gho debt applying the interestStrategy when user borrowed GHO
     revert if user doesn't have a deposit position in this vault
+    gives back collateral to user
      */
     function repayGHO(uint256 nominalAmount) public {
         uint256 totalDeposit = usersToDeposit[msg.sender];
         require(totalDeposit > 0, "user has not a borrow position");
         require(totalDeposit >= nominalAmount, "user want to repay more?");
 
-        uint256 debitPlusInterest = getTotalInterestToPay(
-            msg.sender,
-            nominalAmount,
-            block.timestamp
-        );
+        uint256 debitPlusInterest = getDebtToPay(msg.sender, nominalAmount);
 
         _withdraw(
             msg.sender,
@@ -123,10 +102,27 @@ contract ArbitrageVault is ERC4626 {
             nominalAmount,
             nominalAmount //should change to shares
         );
-        // _withdrawCollateral(debitPlusInterest, totalDeposit);
         _burnGHO(debitPlusInterest);
         usersToDeposit[msg.sender] = totalDeposit - debitPlusInterest;
         emit GHORepaid(msg.sender, nominalAmount, debitPlusInterest);
+    }
+
+    /**
+    @notice calculate the API using MathUtils.calculateLinearInterest from aave 
+     */
+    function calculateAPY(
+        uint256 amount,
+        InterestStrategy memory strategy
+    ) public view returns (uint256) {
+        uint256 rate = WadRayMath.wadToRay(strategy.rate);
+        uint256 i = WadRayMath.rayToWad(
+            MathUtils.calculateLinearInterest(
+                rate,
+                uint40(strategy.start_block)
+            )
+        );
+
+        return WadRayMath.wadMul((i - WadRayMath.WAD), amount) + amount;
     }
 
     /**
@@ -169,31 +165,55 @@ contract ArbitrageVault is ERC4626 {
         return true;
     }
 
+    /**
+    @dev list burra for sales. part of the deposit is put in sales
+     */
+    function listBurra(uint256 amount) public {
+        uint256 totalDeposit = usersToDeposit[msg.sender];
+        require(totalDeposit > 0, "user has not a borrow position");
+        listedBurra[msg.sender] = listedBurra[msg.sender] + amount;
+        emit BurraListed(msg.sender,amount);
+    }
+
     ////////////////////////// internal functions //////////////////////////
     function _mintGHO(uint256 amount) internal {
         gho.mint(msg.sender, amount);
     }
 
     /**
-    @dev in progress
-    should set the discount rate for the user at the time of minting
-    if gho market price is up the rate should be disadvantageus for the user
-    otherwise should be very good, incentivizing user to mint
-    @dev should fetch the current rates maybe
+    @notice interest rate: this is a stable interest rate that get rebalanced depending on gho market price
+    Stable rate parameters:
+        my formula is
+        Interest Rate=Base Interest Rate+(Market Price−Threshold)×Sensitivity
      */
+
     function _determineInterestRate(
         uint256 ghoMarketPrice
     ) internal pure returns (uint256) {
+        uint256 sensitivity = 17000000000000000;
         uint256 rate;
+        // Interest Rate=Base Interest Rate+(Market Price−Threshold)×Sensitivity
         if (ghoMarketPrice >= 1000000000000000000) {
+            uint256 baseRate = 15000000000000000; //1.5%
+            uint256 threshold;
+            unchecked {
+                threshold = ghoMarketPrice - 1000000000000000000;
+            }
+
             rate = WadRayMath.wadDiv(
-                1000000000000000000,
-                100000000000000000000
+                baseRate + WadRayMath.wadMul(threshold, sensitivity),
+                WadRayMath.WAD
             );
         } else {
+            uint256 baseRate = 30000000000000000; //3%
+            uint256 threshold;
+            unchecked {
+                threshold = 1000000000000000000 - ghoMarketPrice;
+            }
+
             rate = WadRayMath.wadDiv(
-                3000000000000000000,
-                100000000000000000000
+                baseRate + WadRayMath.wadMul(threshold, sensitivity),
+                WadRayMath.WAD
             );
         }
         return rate;
@@ -241,10 +261,6 @@ contract ArbitrageVault is ERC4626 {
         return uint256(priceConsumerV3.getLatestPrice() * 10000000000); // chainlink return 8 decimals
     }
 
-    function getBurraNFTAddress() public view returns (address) {
-        return address(burraNFT);
-    }
-
     function getDepositForUser(address user) public view returns (uint256) {
         return usersToDeposit[user];
     }
@@ -255,20 +271,48 @@ contract ArbitrageVault is ERC4626 {
         return userToInterestStrategy[user];
     }
 
-    function getTotalInterestToPay(
+    function getDebtToPay(
         address borrower,
-        uint256 nominalAmount,
-        uint256 timestamp
-    ) public view returns (uint256) {
-        uint256 debitPlusInterest = calculateInterest(
+        uint256 nominalAmount
+    )
+        public
+        view
+        returns (
+            // uint256 timestamp
+            uint256
+        )
+    {
+        uint256 debitPlusInterest = calculateAPY(
             nominalAmount,
-            userToInterestStrategy[borrower],
-            timestamp
+            userToInterestStrategy[borrower]
         );
         return debitPlusInterest;
+    }
+
+    function getBorrowRate() public view returns (uint256) {
+        uint256 ghoMarketPrice = getGHOMarketPrice();
+        return _determineInterestRate(ghoMarketPrice);
     }
 
     function getShareToken() public view returns (string memory) {
         return name();
     }
+
+    function getInterestRate() public view returns (uint256) {
+        uint256 ghoPrice = getGHOMarketPrice();
+        return _determineInterestRate(ghoPrice);
+    }
+
+    function getInterestRateAtPrice(
+        uint256 ghoPrice
+    ) public pure returns (uint256) {
+        return _determineInterestRate(ghoPrice);
+    }
+    
+    function getListedBurra(
+        address owner
+    ) public view returns (uint256) {
+        return listedBurra[owner];
+    }
+    
 }

@@ -26,6 +26,7 @@ import { ListItemWrapper } from '../ListItemWrapper';
 import { ListMobileItemWrapper } from '../ListMobileItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
 import { ListValueRow } from '../ListValueRow';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const GhoBorrowedPositionsListItem = ({
   reserve,
@@ -34,13 +35,13 @@ export const GhoBorrowedPositionsListItem = ({
   const { openBorrow, openRepay, openDebtSwitch } = useModalContext();
   const { currentMarket, currentMarketData } = useProtocolDataContext();
   const { ghoLoadingData, ghoReserveData, ghoUserData, user } = useAppDataContext();
-  const [ghoUserDataFetched, ghoUserQualifiesForDiscount] = useRootStore((store) => [
-    store.ghoUserDataFetched,
-    store.ghoUserQualifiesForDiscount,
-  ]);
+  // const [ghoUserDataFetched, ghoUserQualifiesForDiscount] = useRootStore((store) => [
+  //   store.ghoUserDataFetched,
+  //   store.ghoUserQualifiesForDiscount,
+  // ]);
   const theme = useTheme();
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
-
+const {bucketCap} = useBurra()
   const discountableAmount =
     ghoUserData.userGhoBorrowBalance >= ghoReserveData.ghoMinDebtTokenBalanceForDiscount
       ? ghoUserData.userGhoAvailableToBorrowAtDiscount
@@ -52,46 +53,32 @@ export const GhoBorrowedPositionsListItem = ({
     ghoReserveData.ghoBorrowAPYWithMaxDiscount
   );
 
-  const hasDiscount = ghoUserQualifiesForDiscount();
+  // const hasDiscount = ghoUserQualifiesForDiscount();
 
-  const { isActive, isFrozen, isPaused, borrowingEnabled } = reserve;
-  const maxAmountUserCanMint = Number(getMaxGhoMintAmount(user, reserve));
-  const availableBorrows = Math.min(
-    maxAmountUserCanMint,
-    ghoReserveData.aaveFacilitatorRemainingCapacity
-  );
+  // const { isActive, isFrozen, isPaused, borrowingEnabled } = reserve;
+  const maxAmountUserCanMint = bucketCap?.level || 100
 
-  const props: GhoBorrowedPositionsListItemProps = {
-    reserve,
-    borrowRateMode,
+  const props: any = {
     userGhoBorrowBalance: ghoUserData.userGhoBorrowBalance,
-    hasDiscount,
+    // hasDiscount,
     ghoLoadingData,
-    ghoUserDataFetched,
+    // ghoUserDataFetched,
     borrowRateAfterDiscount,
     currentMarket,
     userDiscountTokenBalance: ghoUserData.userDiscountTokenBalance,
-    borrowDisabled:
-      !isActive ||
-      !borrowingEnabled ||
-      isFrozen ||
-      isPaused ||
-      availableBorrows <= 0 ||
-      ghoReserveData.aaveFacilitatorRemainingCapacity < 0.000001,
-    showSwitchButton: isFeatureEnabled.debtSwitch(currentMarketData) || false,
-    disableSwitch: !isActive || isPaused,
-    disableRepay: !isActive || isPaused,
+    borrowDisabled:false,
+    showSwitchButton: false,
     onRepayClick: () =>
       openRepay(
         reserve.underlyingAsset,
-        borrowRateMode,
-        isFrozen,
+        InterestRate.Stable,
+        false,
         currentMarket,
-        reserve.name,
-        'dashboard'
+        reserve.symbol,
+        "dashboard"
       ),
     onBorrowClick: () =>
-      openBorrow(reserve.underlyingAsset, currentMarket, reserve.name, 'dashboard'),
+      openBorrow("0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2", currentMarket, "GHO", 'dashboard'),
     onSwitchClick: () => openDebtSwitch(reserve.underlyingAsset, borrowRateMode),
   };
 
@@ -123,51 +110,43 @@ interface GhoBorrowedPositionsListItemProps {
 
 const GhoBorrowedPositionsListItemDesktop = ({
   reserve,
-  borrowRateMode,
-  userGhoBorrowBalance,
   hasDiscount,
-  ghoLoadingData,
-  ghoUserDataFetched,
-  borrowRateAfterDiscount,
   currentMarket,
   userDiscountTokenBalance,
-  borrowDisabled,
   onRepayClick,
-  onBorrowClick,
-  onSwitchClick,
-  showSwitchButton,
-  disableSwitch,
   disableRepay,
 }: GhoBorrowedPositionsListItemProps) => {
-  const { symbol, iconSymbol, name, isFrozen, underlyingAsset } = reserve;
+  // const { symbol, iconSymbol, name, isFrozen, underlyingAsset } = reserve;
+  const {  userPositionData} = useBurra()
 
   return (
     <ListItemWrapper
-      symbol={symbol}
-      iconSymbol={iconSymbol}
-      name={name}
-      detailsAddress={underlyingAsset}
+      symbol={"GHO"}
+      iconSymbol={"GHO"}
+      name={"GHO"}
+      detailsAddress={"underlyingAsset"}
       currentMarket={currentMarket}
-      frozen={isFrozen}
-      data-cy={`dashboardBorrowedListItem_${symbol.toUpperCase()}_${borrowRateMode}`}
+      frozen={false}
+      data-cy={`dashboardBorrowedListItem_${"GHO".toUpperCase()}_${"Stable"}`}
       showBorrowCapTooltips
     >
       <ListValueColumn
-        symbol={symbol}
-        value={userGhoBorrowBalance}
-        subValue={userGhoBorrowBalance}
+        symbol={"GHO"}
+        value={userPositionData?.ghoOwned}
+        subValue={userPositionData?.ghoOwnedInDollar}
       />
       <ListColumn>
         <GhoIncentivesCard
           withTokenIcon={hasDiscount}
-          value={ghoLoadingData || !ghoUserDataFetched ? -1 : borrowRateAfterDiscount}
+          value={userPositionData?.interestStrategy.rate}
           data-cy={`apyType`}
           stkAaveBalance={userDiscountTokenBalance}
-          ghoRoute={ROUTES.reserveOverview(underlyingAsset, currentMarket) + '/#discount'}
+          ghoRoute={ROUTES.reserveOverview("underlyingAsset", currentMarket) + '/#discount'}
           userQualifiesForDiscount={hasDiscount}
         />
       </ListColumn>
       <ListColumn>
+      
         <ContentWithTooltip tooltipContent={FixedAPYTooltipText} offset={[0, -4]} withoutHover>
           <Button
             variant="outlined"
@@ -176,7 +155,7 @@ const GhoBorrowedPositionsListItemDesktop = ({
             disabled
             data-cy={`apyButton_fixed`}
           >
-            GHO RATE
+            Custom Rate
             <SvgIcon sx={{ marginLeft: '2px', fontSize: '14px' }}>
               <InformationCircleIcon />
             </SvgIcon>
@@ -184,20 +163,6 @@ const GhoBorrowedPositionsListItemDesktop = ({
         </ContentWithTooltip>
       </ListColumn>
       <ListButtonsColumn>
-        {showSwitchButton ? (
-          <Button
-            disabled={disableSwitch}
-            variant="contained"
-            onClick={onSwitchClick}
-            data-cy={`swapButton`}
-          >
-            <Trans>Switch</Trans>
-          </Button>
-        ) : (
-          <Button disabled={borrowDisabled} variant="outlined" onClick={onBorrowClick}>
-            <Trans>Borrow</Trans>
-          </Button>
-        )}
         <Button disabled={disableRepay} variant="outlined" onClick={onRepayClick}>
           <Trans>Repay</Trans>
         </Button>
@@ -214,12 +179,7 @@ const GhoBorrowedPositionsListItemMobile = ({
   borrowRateAfterDiscount,
   currentMarket,
   userDiscountTokenBalance,
-  borrowDisabled,
   onRepayClick,
-  onBorrowClick,
-  onSwitchClick,
-  showSwitchButton,
-  disableSwitch,
   disableRepay,
 }: GhoBorrowedPositionsListItemProps) => {
   const { symbol, iconSymbol, name } = reserve;
@@ -261,7 +221,7 @@ const GhoBorrowedPositionsListItemMobile = ({
         </ContentWithTooltip>
       </Row>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 5 }}>
-        {showSwitchButton ? (
+        {/* {showSwitchButton ? (
           <Button disabled={disableSwitch} variant="contained" fullWidth onClick={onSwitchClick}>
             <Trans>Switch</Trans>
           </Button>
@@ -269,7 +229,7 @@ const GhoBorrowedPositionsListItemMobile = ({
           <Button disabled={borrowDisabled} variant="outlined" onClick={onBorrowClick} fullWidth>
             <Trans>Borrow</Trans>
           </Button>
-        )}
+        )} */}
         <Button
           disabled={disableRepay}
           variant="outlined"

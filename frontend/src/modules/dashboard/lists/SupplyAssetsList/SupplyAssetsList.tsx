@@ -218,7 +218,7 @@ export const SupplyAssetsList = () => {
     return (
       <ListLoader
         head={head.map((col) => col.title)}
-        title={<Trans>Assets to supply</Trans>}
+        title={<Trans>Burra</Trans>}
         withTopMargin
       />
     );
@@ -229,7 +229,7 @@ export const SupplyAssetsList = () => {
     <ListWrapper
       titleComponent={
         <Typography component="div" variant="h3" sx={{ mr: 4 }}>
-          <Trans>Assets to supply</Trans>
+          <Trans>Listed Bonds</Trans>
         </Typography>
       }
       localStorageName="supplyAssetsDashboardTableCollapse"

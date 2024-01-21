@@ -35,6 +35,7 @@ import {
 import { BorrowActions } from './BorrowActions';
 import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { ParameterChangewarning } from './ParameterChangewarning';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -114,13 +115,14 @@ export const BorrowModalContent = ({
   const { user, marketReferencePriceInUsd } = useAppDataContext();
   const { currentNetworkConfig } = useProtocolDataContext();
   const { borrowCap } = useAssetCaps();
+  const { bucketCap } = useBurra();
 
   const [interestRateMode, setInterestRateMode] = useState<InterestRate>(InterestRate.Variable);
   const [amount, setAmount] = useState('');
   const [riskCheckboxAccepted, setRiskCheckboxAccepted] = useState(false);
 
   // amount calculations
-  const maxAmountToBorrow = getMaxAmountAvailableToBorrow(poolReserve, user, interestRateMode);
+  const maxAmountToBorrow =( bucketCap?.level || 1000).toString()
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected

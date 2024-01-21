@@ -35,7 +35,7 @@ export const DashboardListTopPanel = ({
         pl: { xs: '18px', xsm: '27px' },
       }}
     >
-      <FormControlLabel
+      {/* <FormControlLabel
         sx={{ mt: { xs: bridge ? 2 : 0, xsm: 0 } }}
         control={<Checkbox sx={{ p: '6px' }} />}
         checked={value}
@@ -45,10 +45,11 @@ export const DashboardListTopPanel = ({
           toggleLocalStorageClick(value, onClick, localStorageName);
         }}
         label={<Trans>Show assets with 0 balance</Trans>}
-      />
+      /> */}
 
-      {(STAGING_ENV || ENABLE_TESTNET) && <FaucetButton />}
-      {!ENABLE_TESTNET && <BridgeButton bridge={bridge} />}
+      {/* {(STAGING_ENV || ENABLE_TESTNET) && <FaucetButton />} */}
+      {/* {!ENABLE_TESTNET && <BridgeButton bridge={bridge} />} */}
+      Burra (BU) are essentially debt bonds. GHO debt owners can list some of their Burra shares for other people to buy.
     </Box>
   );
 };

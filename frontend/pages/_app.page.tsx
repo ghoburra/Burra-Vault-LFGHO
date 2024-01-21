@@ -26,6 +26,7 @@ import { SharedDependenciesProvider } from 'src/ui-config/SharedDependenciesProv
 import createEmotionCache from '../src/createEmotionCache';
 import { AppGlobalStyles } from '../src/layouts/AppGlobalStyles';
 import { LanguageProvider } from '../src/libs/LanguageProvider';
+import { ListBurraModal } from 'src/components/transactions/ListBurra/ListBurraModal';
 
 const SwitchModal = dynamic(() =>
   import('src/components/transactions/Switch/SwitchModal').then((module) => module.SwitchModal)
@@ -159,6 +160,7 @@ export default function MyApp(props: MyAppProps) {
                               <MigrateV3Modal />
                               <TransactionEventHandler />
                               <SwitchModal />
+                              <ListBurraModal />
                             </SharedDependenciesProvider>
                           </GasStationProvider>
                         </AppDataProvider>

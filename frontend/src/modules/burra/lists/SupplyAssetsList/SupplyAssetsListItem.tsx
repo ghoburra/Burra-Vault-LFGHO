@@ -121,7 +121,7 @@ export const SupplyAssetsListItem = ({
             openSupply(underlyingAsset, currentMarket, name, 'dashboard');
           }}
         >
-          <Trans>Supply</Trans>
+          <Trans>Buy Burra</Trans>
         </Button>
         <Button
           id="supply-extra-button"

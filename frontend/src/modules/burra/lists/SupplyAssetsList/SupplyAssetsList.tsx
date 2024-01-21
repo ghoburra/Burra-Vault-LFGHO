@@ -3,7 +3,7 @@ import { USD_DECIMALS, valueToBigNumber } from '@aave/math-utils';
 import { Trans } from '@lingui/macro';
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import BigNumber from 'bignumber.js';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
@@ -31,6 +31,8 @@ import { ListLoader } from '../ListLoader';
 import { SupplyAssetsListItem } from './SupplyAssetsListItem';
 import { SupplyAssetsListMobileItem } from './SupplyAssetsListMobileItem';
 import { WalletEmptyInfo } from './WalletEmptyInfo';
+import { useBurra } from 'src/hooks/burra/useBurra';
+import { SupplyAssetsListItemModified } from './SupplyAssetsListItemModified';
 
 const head = [
   { title: <Trans key="assets">Assets</Trans>, sortKey: 'symbol' },
@@ -60,7 +62,7 @@ export const SupplyAssetsList = () => {
 
   const [sortName, setSortName] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
-
+  const { listedBurraPerUser } = useBurra()
   const { bridge, isTestnet, baseAssetSymbol, name: networkName } = currentNetworkConfig;
 
   const localStorageName = 'showSupplyZeroAssets';
@@ -97,10 +99,10 @@ export const SupplyAssetsList = () => {
 
       const usageAsCollateralEnabledOnUser = !user?.isInIsolationMode
         ? reserve.reserveLiquidationThreshold !== '0' &&
-          (!isIsolated || (isIsolated && !hasDifferentCollateral))
+        (!isIsolated || (isIsolated && !hasDifferentCollateral))
         : !isIsolated
-        ? false
-        : !hasDifferentCollateral;
+          ? false
+          : !hasDifferentCollateral;
 
       if (reserve.isWrappedBaseAsset) {
         let baseAvailableToDeposit = valueToBigNumber(
@@ -175,8 +177,8 @@ export const SupplyAssetsList = () => {
   const supplyReserves: unknown = isShowZeroAssets
     ? sortedSupplyReserves
     : filteredSupplyReserves.length >= 1
-    ? filteredSupplyReserves
-    : sortedSupplyReserves;
+      ? filteredSupplyReserves
+      : sortedSupplyReserves;
 
   // Transform to the DashboardReserve schema so the sort utils can work with it
   const preSortedReserves = supplyReserves as DashboardReserve[];
@@ -214,74 +216,66 @@ export const SupplyAssetsList = () => {
     );
   };
 
-  if (loadingReserves || loading)
-    return (
-      <ListLoader
-        head={head.map((col) => col.title)}
-        title={<Trans>Assets to supply</Trans>}
-        withTopMargin
-      />
-    );
 
   const supplyDisabled = !tokensToSupply.length;
-
   return (
     <ListWrapper
       titleComponent={
         <Typography component="div" variant="h3" sx={{ mr: 4 }}>
-          <Trans>Assets to supply</Trans>
+          <Trans>Burra Debt Securities</Trans>
         </Typography>
       }
       localStorageName="supplyAssetsDashboardTableCollapse"
       withTopMargin
-      noData={supplyDisabled}
-      subChildrenComponent={
-        <>
-          <Box sx={{ px: 6 }}>
-            {supplyDisabled && currentNetworkConfig.name === 'Harmony' ? (
-              <MarketWarning marketName="Harmony" />
-            ) : supplyDisabled && currentNetworkConfig.name === 'Fantom' ? (
-              <MarketWarning marketName="Fantom" />
-            ) : supplyDisabled && currentMarketData.marketTitle === 'Ethereum AMM' ? (
-              <MarketWarning marketName="Ethereum AMM" />
-            ) : user?.isInIsolationMode ? (
-              <Warning severity="warning">
-                <Trans>
-                  Collateral usage is limited because of isolation mode.{' '}
-                  <Link href="https://docs.aave.com/faq/" target="_blank" rel="noopener">
-                    Learn More
-                  </Link>
-                </Trans>
-              </Warning>
-            ) : (
-              filteredSupplyReserves.length === 0 &&
-              (isTestnet ? (
-                <Warning severity="info">
-                  <Trans>Your {networkName} wallet is empty. Get free test assets at </Trans>{' '}
-                  {/* <Link href={ROUTES.faucet} style={{ fontWeight: 400 }}>
-                    <Trans>{networkName} Faucet</Trans>
-                  </Link> */}
-                </Warning>
-              ) : (
-                <WalletEmptyInfo name={networkName} bridge={bridge} chainId={currentChainId} />
-              ))
-            )}
-          </Box>
+      noData={false}
+      subChildrenComponent={<></>
+        // <>
+        //   <Box sx={{ px: 6 }}>
+        //     {supplyDisabled && currentNetworkConfig.name === 'Harmony' ? (
+        //       <MarketWarning marketName="Harmony" />
+        //     ) : supplyDisabled && currentNetworkConfig.name === 'Fantom' ? (
+        //       <MarketWarning marketName="Fantom" />
+        //     ) : supplyDisabled && currentMarketData.marketTitle === 'Ethereum AMM' ? (
+        //       <MarketWarning marketName="Ethereum AMM" />
+        //     ) : user?.isInIsolationMode ? (
+        //       <Warning severity="warning">
+        //         <Trans>
+        //           Collateral usage is limited because of isolation mode.{' '}
+        //           <Link href="https://docs.aave.com/faq/" target="_blank" rel="noopener">
+        //             Learn More
+        //           </Link>
+        //         </Trans>
+        //       </Warning>
+        //     ) : (
+        //       filteredSupplyReserves.length === 0 &&
+        //       (isTestnet ? (
+        //         <Warning severity="info">
+        //           <Trans>Your {networkName} wallet is empty. Get free test assets at </Trans>{' '}
+        //           {/* <Link href={ROUTES.faucet} style={{ fontWeight: 400 }}>
+        //             <Trans>{networkName} Faucet</Trans>
+        //           </Link> */}
+        //         </Warning>
+        //       ) : (
+        //         <WalletEmptyInfo name={networkName} bridge={bridge} chainId={currentChainId} />
+        //       ))
+        //     )}
+        //   </Box>
 
-          {filteredSupplyReserves.length >= 1 && (
-            <DashboardListTopPanel
-              value={isShowZeroAssets}
-              onClick={setIsShowZeroAssets}
-              localStorageName={localStorageName}
-              bridge={bridge}
-            />
-          )}
-        </>
+        //   {filteredSupplyReserves.length >= 1 && (
+        //     <DashboardListTopPanel
+        //       value={isShowZeroAssets}
+        //       onClick={setIsShowZeroAssets}
+        //       localStorageName={localStorageName}
+        //       bridge={bridge}
+        //     />
+        //   )}
+        // </>
       }
     >
       <>
-        {!downToXSM && !!sortedReserves && !supplyDisabled && <RenderHeader />}
-        {sortedReserves.map((item) => (
+        {/* {!downToXSM && !!sortedReserves && !supplyDisabled && <RenderHeader />} */}
+        <RenderHeader />
+        {/* {sortedReserves.map((item) => (
           <Fragment key={item.underlyingAsset}>
             <AssetCapsProvider asset={item.reserve}>
               {downToXSM ? (
@@ -291,8 +285,16 @@ export const SupplyAssetsList = () => {
               )}
             </AssetCapsProvider>
           </Fragment>
-        ))}
+        ))} */}
+        {/* {Object.listedBurraPerUser.map((item: any) => (
+            <SupplyAssetsListItemModified {...item} key={1} />
+        ))} */}
+
+        {listedBurraPerUser?.map((el:any,index:any) =>{
+            <SupplyAssetsListItemModified element={el} key={index} />
+        })}
       </>
     </ListWrapper>
   );
+
 };

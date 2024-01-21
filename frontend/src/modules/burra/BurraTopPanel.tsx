@@ -109,7 +109,7 @@ export const BurraTopPanel = () => {
         titleComponent={
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <PageTitle
-              pageTitle={<Trans>Cazzo</Trans>}
+              pageTitle={<Trans>xxx</Trans>}
               withMarketSwitcher={true}
               bridge={currentNetworkConfig.bridge}
             />
@@ -127,7 +127,7 @@ export const BurraTopPanel = () => {
           </Box>
         }
       >
-        <TopInfoPanelItem title={<Trans>Net worth</Trans>} loading={loading} hideIcon>
+        {/* <TopInfoPanelItem title={<Trans>Net worth</Trans>} loading={loading} hideIcon>
           {currentAccount ? (
             <FormattedNumber
               value={Number(user?.netWorthUSD || 0)}
@@ -141,9 +141,9 @@ export const BurraTopPanel = () => {
           ) : (
             <NoData variant={noDataTypographyVariant} sx={{ opacity: '0.7' }} />
           )}
-        </TopInfoPanelItem>
+        </TopInfoPanelItem> */}
 
-        <TopInfoPanelItem
+        {/* <TopInfoPanelItem
           title={
             <div style={{ display: 'flex' }}>
               <Trans>Net APY cazzo</Trans>
@@ -170,9 +170,9 @@ export const BurraTopPanel = () => {
           ) : (
             <NoData variant={noDataTypographyVariant} sx={{ opacity: '0.7' }} />
           )}
-        </TopInfoPanelItem>
+        </TopInfoPanelItem> */}
 
-        {currentAccount && user?.healthFactor !== '-1' && (
+        {/* {currentAccount && user?.healthFactor !== '-1' && (
           <TopInfoPanelItem
             title={
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -200,7 +200,7 @@ export const BurraTopPanel = () => {
               }
             />
           </TopInfoPanelItem>
-        )}
+        )} */}
 
         {currentAccount && claimableRewardsUsd > 0 && (
           <TopInfoPanelItem title={<Trans>Available rewards</Trans>} loading={loading} hideIcon>

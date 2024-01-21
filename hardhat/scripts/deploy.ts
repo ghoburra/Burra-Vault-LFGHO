@@ -27,8 +27,18 @@ async function deployContracts(): Promise<void> {
   const bucketCapacity = ethers.parseEther('100');
   await ghoToken.connect(deployer).addFacilitator(VAULT_ADDRESS, "BURRA_FACILITATOR", bucketCapacity);
 
+  const depositAmount = 1000_000_000_000_000_000n
+
+  const dai = new ethers.Contract(DAI_ADDRESS, ERC20Json.abi, deployer) as unknown as ERC20
+  await dai.connect(deployer).approve(vault, depositAmount)
+
+  const borrowTx = await vault.connect(deployer).borrowGho(depositAmount)
+  // const listedAamount = 1000_000_000_000_000_000n / 2n
+  // const listed = await vault.listBurra(listedAamount)
+  // console.log("listed SOme burra ")
+
   console.log("GhoToken address:", GHO_ADDRESS);
-  console.log("ArbitrageVault address:",VAULT_ADDRESS);
+  console.log("ArbitrageVault address:", VAULT_ADDRESS);
 }
 
 deployContracts()

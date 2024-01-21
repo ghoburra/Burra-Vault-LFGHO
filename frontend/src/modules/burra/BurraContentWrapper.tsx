@@ -11,6 +11,8 @@ import { BorrowAssetsList } from './lists/BorrowAssetsList/BorrowAssetsList';
 import { BorrowedPositionsList } from './lists/BorrowedPositionsList/BorrowedPositionsList';
 import { SuppliedPositionsList } from './lists/SuppliedPositionsList/SuppliedPositionsList';
 import { SupplyAssetsList } from './lists/SupplyAssetsList/SupplyAssetsList';
+import { BurraBorrowedPositionsList } from './lists/BurraPositionsList/BurraPositionsList';
+import { SupplyAssetsListModified } from './lists/SupplyAssetsList/SupplyAssetsListModified';
 
 interface BurraContentWrapperProps {
   isBorrow: boolean;
@@ -79,7 +81,7 @@ export const BurraContentWrapper = ({ isBorrow }: BurraContentWrapperProps) => {
           asset user can supply 
           need to remove the supply button since DAI is deposited at mint time
           */}
-          <SupplyAssetsList />
+          <SupplyAssetsListModified />
         </Box>
 
         <Box
@@ -115,6 +117,7 @@ export const BurraContentWrapper = ({ isBorrow }: BurraContentWrapperProps) => {
           )}
           {/*  should change, just call the contract to see how many GHO the user have borrowed */}
           <BorrowedPositionsList />
+          <BurraBorrowedPositionsList />
 
           {/*  just leave GHO here */}
           <BorrowAssetsList />

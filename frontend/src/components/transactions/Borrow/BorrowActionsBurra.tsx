@@ -1,26 +1,19 @@
 import {
-  API_ETH_MOCK_ADDRESS,
   ApproveDelegationType,
-  gasLimitRecommendations,
   InterestRate,
-  MAX_UINT_AMOUNT,
-  ProtocolAction,
 } from '@aave/contract-helpers';
 import { Trans } from '@lingui/macro';
 import { BoxProps } from '@mui/material';
-import { parseUnits } from 'ethers/lib/utils';
-import { queryClient } from 'pages/_app.page';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useBackgroundDataProvider } from 'src/hooks/app-data-provider/BackgroundDataProvider';
+import React, { useState } from 'react';
 import { ComputedReserveData } from 'src/hooks/app-data-provider/useAppDataProvider';
 import { useModalContext } from 'src/hooks/useModal';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
 import { useRootStore } from 'src/store/root';
 import { getErrorTextFromError, TxAction } from 'src/ui-config/errorMapping';
-import { queryKeysFactory } from 'src/ui-config/queries';
 
 import { TxActionsWrapper } from '../TxActionsWrapper';
-import { APPROVE_DELEGATION_GAS_LIMIT, checkRequiresApproval } from '../utils';
+import { ethers } from 'ethers';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export interface BorrowActionsProps extends BoxProps {
   poolReserve: ComputedReserveData;
@@ -44,18 +37,18 @@ export const BorrowActionsBurra = React.memo(
     sx,
   }: BorrowActionsProps) => {
     const [
-      borrow,
-      getCreditDelegationApprovedAmount,
-      currentMarketData,
-      generateApproveDelegation,
+      getGHOContract,
+      getVaultContract,
+      getCollateralContract,
       estimateGasLimit,
+      getSigner,
       addTransaction,
     ] = useRootStore((state) => [
-      state.borrow,
-      state.getCreditDelegationApprovedAmount,
-      state.currentMarketData,
-      state.generateApproveDelegation,
+      state.getGHOContract,
+      state.getVaultContract,
+      state.getCollateralContract,
       state.estimateGasLimit,
+      state.getSigner,
       state.addTransaction,
     ]);
     const {
@@ -68,33 +61,28 @@ export const BorrowActionsBurra = React.memo(
       setLoadingTxns,
       setApprovalTxState,
     } = useModalContext();
-    // const { refetchPoolData, refetchIncentiveData, refetchGhoData } = useBackgroundDataProvider();
     const { sendTx } = useWeb3Context();
     const [requiresApproval, setRequiresApproval] = useState<boolean>(false);
     const [approvedAmount, setApprovedAmount] = useState<ApproveDelegationType | undefined>();
+    const { buildApproveCollateralTx, buildBorrowGHOTx } = useBurra()
+
 
     const approval = async () => {
       try {
-        if (requiresApproval && approvedAmount) {
-          let approveDelegationTxData = generateApproveDelegation({
-            debtTokenAddress:
-              interestRateMode === InterestRate.Variable
-                ? poolReserve.variableDebtTokenAddress
-                : poolReserve.stableDebtTokenAddress,
-            delegatee: currentMarketData.addresses.WETH_GATEWAY ?? '',
-            amount: MAX_UINT_AMOUNT,
-          });
-          setApprovalTxState({ ...approvalTxState, loading: true });
-          approveDelegationTxData = await estimateGasLimit(approveDelegationTxData);
-          const response = await sendTx(approveDelegationTxData);
+        const DAI_ADDRESS = "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357"
+        const tx = buildApproveCollateralTx(amountToBorrow, DAI_ADDRESS)
+        if (tx) {
+          const gasLimitedTx = await estimateGasLimit(tx);
+          const response = await sendTx(gasLimitedTx);
           await response.wait(1);
           setApprovalTxState({
             txHash: response.hash,
             loading: false,
             success: true,
           });
-          fetchApprovedAmount(true);
         }
+        // }
+        // fetchApprovedAmount(true);
       } catch (error) {
         const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
         setTxError(parsedError);
@@ -106,111 +94,50 @@ export const BorrowActionsBurra = React.memo(
     };
 
     const action = async () => {
-      alert("cazzo porco dio")
-      // try {
-      //   setMainTxState({ ...mainTxState, loading: true });
-      //   let borrowTxData = borrow({
-      //     amount: parseUnits(amountToBorrow, poolReserve.decimals).toString(),
-      //     reserve: poolAddress,
-      //     interestRateMode,
-      //     debtTokenAddress:
-      //       interestRateMode === InterestRate.Variable
-      //         ? poolReserve.variableDebtTokenAddress
-      //         : poolReserve.stableDebtTokenAddress,
-      //   });
-      //   borrowTxData = await estimateGasLimit(borrowTxData);
-      //   const response = await sendTx(borrowTxData);
-      //   await response.wait(1);
-      //   setMainTxState({
-      //     txHash: response.hash,
-      //     loading: false,
-      //     success: true,
-      //   });
+      const ghotkn = getGHOContract()
+      const vaultContract = getVaultContract()
 
-      //   addTransaction(response.hash, {
-      //     action: ProtocolAction.borrow,
-      //     txState: 'success',
-      //     asset: poolAddress,
-      //     amount: amountToBorrow,
-      //     assetName: poolReserve.name,
-      //   });
+      try {
+        setMainTxState({ ...mainTxState, loading: true });
+        await approval()
 
-      //   queryClient.invalidateQueries({ queryKey: queryKeysFactory.pool });
-      //   refetchPoolData && refetchPoolData();
-      //   refetchIncentiveData && refetchIncentiveData();
-      //   refetchGhoData && refetchGhoData();
-      // } catch (error) {
-      //   const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
-      //   setTxError(parsedError);
-      //   setMainTxState({
-      //     txHash: undefined,
-      //     loading: false,
-      //   });
-      // }
+        const tx = buildBorrowGHOTx(amountToBorrow)
+     
+        if (tx) {
+          const gasLimitedTx = await estimateGasLimit(tx);
+          const response = await sendTx(gasLimitedTx);
+          await response.wait(1);
+          setMainTxState({
+            txHash: response.hash,
+            loading: false,
+            success: true,
+          });
+
+          addTransaction(response.hash, {
+            action: "Vault Borrow GHO",
+            txState: 'success',
+            asset: ghotkn.address,
+            amount: amountToBorrow,
+            assetName: "GHO",
+          });
+
+        }
+
+
+        // queryClient.invalidateQueries({ queryKey: queryKeysFactory.pool });
+        // refetchPoolData && refetchPoolData();
+        // refetchIncentiveData && refetchIncentiveData();
+        // refetchGhoData && refetchGhoData();
+      } catch (error) {
+        const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
+        setTxError(parsedError);
+        setMainTxState({
+          txHash: undefined,
+          loading: false,
+        });
+      }
     };
 
-    // callback to fetch approved credit delegation amount and determine execution path on dependency updates
-    const fetchApprovedAmount = useCallback(
-      async (forceApprovalCheck?: boolean) => {
-        // Check approved amount on-chain on first load or if an action triggers a re-check such as an approveDelegation being confirmed
-        if (
-          poolAddress === API_ETH_MOCK_ADDRESS &&
-          (approvedAmount === undefined || forceApprovalCheck)
-        ) {
-          setLoadingTxns(true);
-          const approvedAmount = await getCreditDelegationApprovedAmount({
-            debtTokenAddress:
-              interestRateMode === InterestRate.Variable
-                ? poolReserve.variableDebtTokenAddress
-                : poolReserve.stableDebtTokenAddress,
-            delegatee: currentMarketData.addresses.WETH_GATEWAY ?? '',
-          });
-          setApprovedAmount(approvedAmount);
-        } else {
-          setRequiresApproval(false);
-          setApprovalTxState({});
-        }
-
-        if (approvedAmount && poolAddress === API_ETH_MOCK_ADDRESS) {
-          const fetchedRequiresApproval = checkRequiresApproval({
-            approvedAmount: approvedAmount.amount,
-            amount: amountToBorrow,
-            signedAmount: '0',
-          });
-          setRequiresApproval(fetchedRequiresApproval);
-          if (fetchedRequiresApproval) setApprovalTxState({});
-        }
-
-        setLoadingTxns(false);
-      },
-      [
-        amountToBorrow,
-        approvedAmount,
-        currentMarketData.addresses.WETH_GATEWAY,
-        getCreditDelegationApprovedAmount,
-        interestRateMode,
-        poolAddress,
-        poolReserve.stableDebtTokenAddress,
-        poolReserve.variableDebtTokenAddress,
-        setApprovalTxState,
-        setLoadingTxns,
-      ]
-    );
-
-    // Run on first load of reserve to determine execution path
-    useEffect(() => {
-      fetchApprovedAmount();
-    }, [fetchApprovedAmount, poolAddress]);
-
-    // Update gas estimation
-    useEffect(() => {
-      let borrowGasLimit = 0;
-      borrowGasLimit = Number(gasLimitRecommendations[ProtocolAction.borrow].recommended);
-      if (requiresApproval && !approvalTxState.success) {
-        borrowGasLimit += Number(APPROVE_DELEGATION_GAS_LIMIT);
-      }
-      setGasLimit(borrowGasLimit.toString());
-    }, [requiresApproval, approvalTxState, setGasLimit]);
 
     return (
       <TxActionsWrapper
@@ -231,3 +158,4 @@ export const BorrowActionsBurra = React.memo(
     );
   }
 );
+

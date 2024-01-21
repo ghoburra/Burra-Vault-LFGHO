@@ -40,6 +40,7 @@ import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { GhoBorrowSuccessView } from './GhoBorrowSuccessView';
 import { ParameterChangewarning } from './ParameterChangewarning';
 import { BorrowActionsBurra } from './BorrowActionsBurra';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -130,13 +131,9 @@ export const GhoBorrowModalContentBurra = ({
   const hasGhoBorrowPositions = ghoUserData.userGhoBorrowBalance > 0;
   const userStakedAaveBalance: number = ghoUserData.userDiscountTokenBalance;
   const discountAvailable = ghoUserQualifiesForDiscount(amount);
-
+ const { bucketCap } = useBurra();
   // amount calculations
-  let maxAmountToBorrow = getMaxGhoMintAmount(user, poolReserve);
-  maxAmountToBorrow = Math.min(
-    Number(maxAmountToBorrow),
-    ghoReserveData.aaveFacilitatorRemainingCapacity
-  ).toFixed(10);
+  const maxAmountToBorrow = bucketCap?.level.toString() || "10000"
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected

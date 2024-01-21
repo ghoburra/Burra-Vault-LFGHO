@@ -26,6 +26,7 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { SuppliedPositionsListItem } from './SuppliedPositionsListItem';
 import { SuppliedPositionsListMobileItem } from './SuppliedPositionsListMobileItem';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 const head = [
   {
@@ -65,6 +66,7 @@ export const SuppliedPositionsList = () => {
   const [sortName, setSortName] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
+  const {userPositionData,collateralData} = useBurra()
 
   const suppliedPositions =
     user?.userReservesData
@@ -126,7 +128,7 @@ export const SuppliedPositionsList = () => {
       tooltipOpen={tooltipOpen}
       titleComponent={
         <Typography component="div" variant="h3" sx={{ mr: 4 }}>
-          <Trans>Your supplies</Trans>
+          <Trans>Asset You Deposited As Collateral</Trans>
         </Typography>
       }
       localStorageName="suppliedAssetsDashboardTableCollapse"
@@ -137,7 +139,7 @@ export const SuppliedPositionsList = () => {
             <>
               <ListTopInfoItem
                 title={<Trans>Balance</Trans>}
-                value={user?.totalLiquidityUSD || 0}
+                value={collateralData?.balance || 0}
               />
               <ListTopInfoItem
                 title={<Trans>APY</Trans>}
@@ -155,7 +157,7 @@ export const SuppliedPositionsList = () => {
               />
               <ListTopInfoItem
                 title={<Trans>Collateral</Trans>}
-                value={user?.totalCollateralUSD || 0}
+                value={userPositionData?.deposit || 0}
                 tooltip={
                   <CollateralTooltip
                     setOpen={setTooltipOpen}

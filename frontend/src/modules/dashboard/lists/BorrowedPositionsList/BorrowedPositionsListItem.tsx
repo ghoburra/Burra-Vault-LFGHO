@@ -153,7 +153,7 @@ const BorrowedPositionsListItemDesktop = ({
       </ListColumn>
 
       <ListButtonsColumn>
-        {showSwitchButton ? (
+        {/* {showSwitchButton ? (
           <Button
             disabled={disableSwitch}
             variant="contained"
@@ -166,7 +166,7 @@ const BorrowedPositionsListItemDesktop = ({
           <Button disabled={disableBorrow} variant="contained" onClick={onOpenBorrow}>
             <Trans>Borrow</Trans>
           </Button>
-        )}
+        )} */}
         <Button disabled={disableRepay} variant="outlined" onClick={onOpenRepay}>
           <Trans>Repay</Trans>
         </Button>

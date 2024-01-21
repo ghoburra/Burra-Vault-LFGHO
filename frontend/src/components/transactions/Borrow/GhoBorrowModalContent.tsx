@@ -39,6 +39,7 @@ import { BorrowActions } from './BorrowActions';
 import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { GhoBorrowSuccessView } from './GhoBorrowSuccessView';
 import { ParameterChangewarning } from './ParameterChangewarning';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -123,7 +124,7 @@ export const GhoBorrowModalContent = ({
   const [interestRateMode, setInterestRateMode] = useState<InterestRate>(InterestRate.Variable);
   const [amount, setAmount] = useState('');
   const [riskCheckboxAccepted, setRiskCheckboxAccepted] = useState(false);
-
+  const { bucketCap } = useBurra();
   // Check if user has any open borrow positions on GHO
   // Check if user can borrow at a discount
   const hasGhoBorrowPositions = ghoUserData.userGhoBorrowBalance > 0;
@@ -131,11 +132,7 @@ export const GhoBorrowModalContent = ({
   const discountAvailable = ghoUserQualifiesForDiscount(amount);
 
   // amount calculations
-  let maxAmountToBorrow = getMaxGhoMintAmount(user, poolReserve);
-  maxAmountToBorrow = Math.min(
-    Number(maxAmountToBorrow),
-    ghoReserveData.aaveFacilitatorRemainingCapacity
-  ).toFixed(10);
+  let maxAmountToBorrow =  bucketCap?.level.toString() || "1000"
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected

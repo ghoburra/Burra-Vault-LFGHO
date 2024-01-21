@@ -8,14 +8,8 @@ type FixedToolTipProps = TextWithTooltipProps;
 
 export const FixedAPYTooltipText = (
   <Trans>
-    Interest rate that is determined by Aave Governance. This rate may be changed over time
-    depending on the need for the GHO supply to contract/expand.{' '}
-    <Link
-      href="https://docs.gho.xyz/concepts/how-gho-works/interest-rate-discount-model#interest-rate-model"
-      underline="always"
-    >
-      <Trans>Learn more</Trans>
-    </Link>
+    The interest Rate For GHO minted by this Facilitator is custom,{' '}
+    If market price is {'>'} than 1$ the rate will be smaller, otherwise, bigger.
   </Trans>
 );
 

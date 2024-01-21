@@ -17,6 +17,7 @@ import { getQueryParameter } from './utils/queryParams';
 import { createV3MigrationSlice, V3MigrationSlice } from './v3MigrationSlice';
 import { createWalletDomainsSlice, WalletDomainsSlice } from './walletDomains';
 import { createWalletSlice, WalletSlice } from './walletSlice';
+import { BurraSlice, createBurraSlice } from './burraSlice';
 
 enableMapSet();
 
@@ -31,12 +32,14 @@ export type RootStore = StakeSlice &
   WalletDomainsSlice &
   AnalyticsSlice &
   TransactionsSlice &
+  BurraSlice &
   LayoutSlice;
 
 export const useRootStore = create<RootStore>()(
   subscribeWithSelector(
     devtools((...args) => {
       return {
+        ...createBurraSlice(...args),
         ...createStakeSlice(...args),
         ...createProtocolDataSlice(...args),
         ...createWalletSlice(...args),

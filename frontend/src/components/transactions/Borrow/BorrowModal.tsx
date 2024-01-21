@@ -34,10 +34,11 @@ export const BorrowModal = () => {
     <BasicModal open={type === ModalType.Borrow} setOpen={close}>
       <ModalWrapper
         action="borrow"
-        title={<Trans>Borrow</Trans>}
+        title={<Trans>Approve collateral first and then borrow some</Trans>}
         underlyingAsset={args.underlyingAsset}
         keepWrappedSymbol={!borrowUnWrapped}
         requiredPermission={PERMISSION.BORROWER}
+
       >
         {(params) =>
           displayGho({ symbol: params.symbol, currentMarket }) ? (

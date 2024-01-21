@@ -15,6 +15,7 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListItemUsedAsCollateral } from '../ListItemUsedAsCollateral';
 import { ListItemWrapper } from '../ListItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const SuppliedPositionsListItem = ({
   reserve,
@@ -30,6 +31,7 @@ export const SuppliedPositionsListItem = ({
   const { debtCeiling } = useAssetCaps();
   const isSwapButton = isFeatureEnabled.liquiditySwap(currentMarketData);
   const trackEvent = useRootStore((store) => store.trackEvent);
+  const {userPositionData, collateralData} = useBurra()
 
   const canBeEnabledAsCollateral =
     !debtCeiling.isMaxed &&
@@ -39,16 +41,15 @@ export const SuppliedPositionsListItem = ({
       (reserve.isIsolated && user.totalCollateralMarketReferenceCurrency === '0'));
 
   const disableSwap = !isActive || isPaused || reserve.symbol == 'stETH';
-  const disableWithdraw = !isActive || isPaused;
+  const disableWithdraw = true;
   const disableSupply = true;
-  // const disableSupply = !isActive || isFrozen || isPaused;
 
   return (
     <ListItemWrapper
-      symbol={reserve.symbol}
-      iconSymbol={reserve.iconSymbol}
-      name={reserve.name}
-      detailsAddress={underlyingAsset}
+      symbol={collateralData?.symbol|| "DAI"}
+      iconSymbol={reserve.iconSymbol} // PUT HERE DAI ICON SOMEHOW
+      name={collateralData?.name || "DAI"}
+      detailsAddress={collateralData?.address || ""}
       currentMarket={currentMarket}
       frozen={reserve.isFrozen}
       paused={isPaused}
@@ -60,9 +61,9 @@ export const SuppliedPositionsListItem = ({
     >
       <ListValueColumn
         symbol={reserve.iconSymbol}
-        value={Number(underlyingBalance)}
-        subValue={Number(underlyingBalanceUSD)}
-        disabled={Number(underlyingBalance) === 0}
+        value={userPositionData?.deposit}
+        subValue={userPositionData?.deposit}
+        disabled={userPositionData?.deposit === 0}
       />
 
       <ListAPRColumn
@@ -73,7 +74,7 @@ export const SuppliedPositionsListItem = ({
 
       <ListColumn>
         <ListItemUsedAsCollateral
-          disabled={reserve.isPaused}
+          disabled={true}
           isIsolated={isIsolated}
           usageAsCollateralEnabledOnUser={usageAsCollateralEnabledOnUser}
           canBeEnabledAsCollateral={canBeEnabledAsCollateral}
