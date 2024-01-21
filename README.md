@@ -1,5 +1,7 @@
-#Burra Vault
+# Burra Vault
+
 ## Overview
+
 Burra vault is a ERC 4626 vault which act as a GHO facilitator. It can mint GHO to users who deposit in the vault.
 The special thing of Burra is that it determines the interest borrow rate basing on the price. if GHO is overpegged, the rate will be smaller, incentivizing users to mint (borrow) GHO at a low interest.
 This would cause the supply of GHO to increase, and the price to be back at 1$. In the opposite scenario, when GHO is underpegged (price <1$) to the dollar, the rate will be higher, deterring users to mint new GHO.
@@ -13,6 +15,7 @@ This secondary market would deter user to mint new gho when the rates are high w
 - tests for the vault
 - forked AAve user interface to represent the app
 I used Solidity and hardhat to write, deploy and test the contracts. I deployed a forked GHOToken and the facilitator.
-Addresses:
+
+## Addresses:
 GhoToken address: 0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2
 ArbitrageVault address: 0x78A3022d16340412eCf82BAF5d5b6486CCc95869
