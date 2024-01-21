@@ -11,7 +11,7 @@ import {
 } from '../../../../utils/dashboardSortUtils';
 import { ListButtonsColumn } from '../ListButtonsColumn';
 import { useBurra } from 'src/hooks/burra/useBurra';
-import { SupplyAssetsListItemModified, SupplyAssetsListItemModifiedGeneral } from './SupplyAssetsListItemModified';
+import { SupplyAssetsListItemModified } from './SupplyAssetsListItemModified';
 import { Row } from 'src/components/primitives/Row';
 import { ListValueRow } from 'src/modules/dashboard/lists/ListValueRow';
 
@@ -38,7 +38,7 @@ export const SupplyAssetsListModified = () => {
     <ListWrapper
       titleComponent={
         <Typography component="div" variant="h3" sx={{ mr: 4 }}>
-          <Trans>Burra Debt Securities</Trans>
+          <Trans>Listed Burra Debt Shares</Trans>
         </Typography>
       }
       localStorageName="supplyAssetsDashboardTableCollapse"
