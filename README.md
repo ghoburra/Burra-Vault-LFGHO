@@ -19,3 +19,12 @@ I used Solidity and hardhat to write, deploy and test the contracts. I deployed 
 ## Addresses:
 GhoToken address: 0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2
 ArbitrageVault address: 0x78A3022d16340412eCf82BAF5d5b6486CCc95869
+
+## Relevant Pieces of Code
+Vault: https://github.com/fabriziogianni7/Burra-Vault-LFGHO/blob/main/hardhat/contracts/ArbitrageVault.sol
+
+Tests: https://github.com/fabriziogianni7/Burra-Vault-LFGHO/blob/main/hardhat/test/ArbitrageVault.ts
+
+APY calculation: https://github.com/fabriziogianni7/Burra-Vault-LFGHO/blob/27be4779594be8c1e71f09bf8051db28e0f03da9/hardhat/contracts/ArbitrageVault.sol#L113
+
+Interest rate formula: https://github.com/fabriziogianni7/Burra-Vault-LFGHO/blob/27be4779594be8c1e71f09bf8051db28e0f03da9/hardhat/contracts/ArbitrageVault.sol#L190
