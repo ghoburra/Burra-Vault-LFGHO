@@ -17,8 +17,10 @@ This secondary market would deter user to mint new gho when the rates are high w
 I used Solidity and hardhat to write, deploy and test the contracts. I deployed a forked GHOToken and the facilitator.
 
 ## Addresses:
-GhoToken address: 0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2
-ArbitrageVault address: 0x78A3022d16340412eCf82BAF5d5b6486CCc95869
+
+GhoToken address: 0x3308ff248A0Aa6EB7499A39C4c26ADF526825B0d
+
+ArbitrageVault address: 0xdEC90AA22d77af136588F54F44ec66492409D740
 
 ## Relevant Pieces of Code
 Vault: https://github.com/fabriziogianni7/Burra-Vault-LFGHO/blob/main/hardhat/contracts/ArbitrageVault.sol
