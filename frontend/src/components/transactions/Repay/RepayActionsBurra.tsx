@@ -1,34 +1,27 @@
-import { gasLimitRecommendations, InterestRate, ProtocolAction } from '@aave/contract-helpers';
-import { TransactionResponse } from '@ethersproject/providers';
+import { InterestRate } from '@aave/contract-helpers';
 import { Trans } from '@lingui/macro';
 import { BoxProps } from '@mui/material';
-import { parseUnits } from 'ethers/lib/utils';
-import { queryClient } from 'pages/_app.page';
 import { useEffect, useState } from 'react';
-import { useBackgroundDataProvider } from 'src/hooks/app-data-provider/BackgroundDataProvider';
 import { ComputedReserveData } from 'src/hooks/app-data-provider/useAppDataProvider';
-import { SignedParams, useApprovalTx } from 'src/hooks/useApprovalTx';
-import { usePoolApprovedAmount } from 'src/hooks/useApprovedAmount';
+import { SignedParams } from 'src/hooks/useApprovalTx';
 import { useModalContext } from 'src/hooks/useModal';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
 import { useRootStore } from 'src/store/root';
-import { ApprovalMethod } from 'src/store/walletSlice';
 import { getErrorTextFromError, TxAction } from 'src/ui-config/errorMapping';
-import { queryKeysFactory } from 'src/ui-config/queries';
 
 import { TxActionsWrapper } from '../TxActionsWrapper';
-import { APPROVAL_GAS_LIMIT, checkRequiresApproval } from '../utils';
+import { checkRequiresApproval } from '../utils';
 import { useBurra } from 'src/hooks/burra/useBurra';
 
 export interface RepayActionProps extends BoxProps {
   amountToRepay: string;
-  poolReserve: ComputedReserveData;
+  poolReserve?: ComputedReserveData;
   isWrongNetwork: boolean;
   customGasPrice?: string;
-  poolAddress: string;
+  poolAddress?: string;
   symbol: string;
-  debtType: InterestRate;
-  repayWithATokens: boolean;
+  debtType?: InterestRate;
+  repayWithATokens?: boolean;
   blocked?: boolean;
   maxApproveNeeded: string;
 }
@@ -70,6 +63,7 @@ export const RepayActionsBurra = ({
     store.currentMarketData,
   ]);
   const { sendTx } = useWeb3Context();
+  const { VAULT, ghoContract } = useBurra()
   // const { refetchGhoData, refetchIncentiveData, refetchPoolData } = useBackgroundDataProvider();
   const [signatureParams, setSignatureParams] = useState<SignedParams | undefined>();
   const {
@@ -82,43 +76,16 @@ export const RepayActionsBurra = ({
     setLoadingTxns,
     setApprovalTxState,
   } = useModalContext();
+  const { currentAccount } = useWeb3Context();
+  const [requiresPermission, setRequiresPermission] = useState(false)
 
-  const {
-    data: approvedAmount,
-    refetch: fetchApprovedAmount,
-    isFetching: fetchingApprovedAmount,
-    isFetchedAfterMount,
-  } = usePoolApprovedAmount(currentMarketData, poolAddress);
 
-  const permitAvailable = tryPermit({
-    reserveAddress: poolAddress,
-    isWrappedBaseAsset: poolReserve.isWrappedBaseAsset,
-  });
-  const usePermit = permitAvailable && walletApprovalMethodPreference === ApprovalMethod.PERMIT;
-
-  setLoadingTxns(fetchingApprovedAmount);
-
-  const requiresApproval =
-    !repayWithATokens &&
-    Number(amountToRepay) !== 0 &&
-    checkRequiresApproval({
-      approvedAmount: approvedAmount?.amount || '0',
-      amount: Number(amountToRepay) === -1 ? maxApproveNeeded : amountToRepay,
-      signedAmount: signatureParams ? signatureParams.amount : '0',
-    });
-
-  if (requiresApproval && approvalTxState?.success) {
-    // There was a successful approval tx, but the approval amount is not enough.
-    // Clear the state to prompt for another approval.
-    setApprovalTxState({});
-  }
-
-  const { buildApproveCollateralTx, buildRepayTx , userPositionData} = useBurra()
+  const { buildApproveCollateralTx, buildRepayTx, userPositionData, GHO } = useBurra()
 
   const approval = async () => {
     console.log("POSITION DATA", userPositionData)
     try {
-      const GHO_ADDRESS = "0xb16bd090F562eF9A93a47F2a52A649cCbf70c39A"
+      const GHO_ADDRESS = GHO
       const tx = buildApproveCollateralTx("10000000000000000000000000000", GHO_ADDRESS)
       if (tx) {
         const gasLimitedTx = await estimateGasLimit(tx);
@@ -140,41 +107,11 @@ export const RepayActionsBurra = ({
     }
   };
 
-  useEffect(() => {
-    if (!isFetchedAfterMount && !repayWithATokens) {
-      fetchApprovedAmount();
-    }
-  }, [fetchApprovedAmount, isFetchedAfterMount, repayWithATokens]);
 
   const action = async () => {
     try {
       setMainTxState({ ...mainTxState, loading: true });
       await approval()
-      // let response: TransactionResponse;
-      // let action = ProtocolAction.default;
-
-      // if (usePermit && signatureParams) {
-      //   const repayWithPermitParams = {
-      //     amount:
-      //       amountToRepay === '-1'
-      //         ? amountToRepay
-      //         : parseUnits(amountToRepay, poolReserve.decimals).toString(),
-      //     reserve: poolAddress,
-      //     interestRateMode: debtType,
-      //     signature: signatureParams.signature,
-      //     deadline: signatureParams.deadline,
-      //   };
-
-      //   let encodedParams: [string, string, string] | undefined;
-      //   if (optimizedPath()) {
-      //     encodedParams = await encodeRepayWithPermit(repayWithPermitParams);
-      //   }
-
-      //   action = ProtocolAction.repayWithPermit;
-      //   let signedRepayWithPermitTxData = repayWithPermit({
-      //     ...repayWithPermitParams,
-      //     encodedTxData: encodedParams ? encodedParams[0] : undefined,
-      //   });
       const tx = buildRepayTx(amountToRepay)
       if (tx) {
         const estimatedTx = await estimateGasLimit(tx);
@@ -188,42 +125,11 @@ export const RepayActionsBurra = ({
         });
         addTransaction(response.hash, {
           txState: 'success',
-          asset: poolAddress,
+          asset: VAULT,
           amount: amountToRepay,
           assetName: symbol,
         });
       }
-      // } else {
-      //   const repayParams = {
-      //     amountToRepay:
-      //       amountToRepay === '-1'
-      //         ? amountToRepay
-      //         : parseUnits(amountToRepay, poolReserve.decimals).toString(),
-      //     poolAddress,
-      //     repayWithATokens,
-      //     debtType,
-      //   };
-
-      //   let encodedParams: string | undefined;
-      //   if (optimizedPath()) {
-      //     encodedParams = await encodeRepayParams(repayParams);
-      //   }
-
-      //   action = ProtocolAction.repay;
-      //   let repayTxData = repay({
-      //     ...repayParams,
-      //     encodedTxData: encodedParams,
-      //   });
-      //   repayTxData = await estimateGasLimit(repayTxData);
-      //   response = await sendTx(repayTxData);
-      //   await response.wait(1);
-      // }
-
-
-      // queryClient.invalidateQueries({ queryKey: queryKeysFactory.pool });
-      // refetchPoolData && refetchPoolData();
-      // refetchIncentiveData && refetchIncentiveData();
-      // refetchGhoData && refetchGhoData();
     } catch (error) {
       const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
       setTxError(parsedError);
@@ -234,31 +140,29 @@ export const RepayActionsBurra = ({
     }
   };
 
-  
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (ghoContract) {
+        const rp: boolean = (await ghoContract?.allowance(currentAccount, VAULT)) < Number(amountToRepay)
+        setRequiresPermission(rp)
+      }
 
-  // useEffect(() => {
-  //   let supplyGasLimit = 0;
-  //   if (usePermit) {
-  //     supplyGasLimit = Number(gasLimitRecommendations[ProtocolAction.supplyWithPermit].recommended);
-  //   } else {
-  //     supplyGasLimit = Number(gasLimitRecommendations[ProtocolAction.supply].recommended);
-  //     if (requiresApproval && !approvalTxState.success) {
-  //       supplyGasLimit += Number(APPROVAL_GAS_LIMIT);
-  //     }
-  //   }
-  //   setGasLimit(supplyGasLimit.toString());
-  // }, [requiresApproval, approvalTxState, usePermit, setGasLimit]);
+    }
+    checkAllowance()
+  }, [VAULT,ghoContract])
+
+
 
   return (
     <TxActionsWrapper
-      blocked={blocked}
-      preparingTransactions={loadingTxns || !approvedAmount}
-      symbol={poolReserve.symbol}
+      blocked={false}
+      preparingTransactions={loadingTxns}
+      symbol={"GHO"}
       mainTxState={mainTxState}
       approvalTxState={approvalTxState}
       requiresAmount
       amount={amountToRepay}
-      requiresApproval={requiresApproval}
+      requiresApproval={false}
       isWrongNetwork={isWrongNetwork}
       sx={sx}
       {...props}
@@ -266,7 +170,7 @@ export const RepayActionsBurra = ({
       handleApproval={approval}
       actionText={<Trans>Repay{symbol}</Trans>}
       actionInProgressText={<Trans>Repaying {symbol}</Trans>}
-      tryPermit={permitAvailable}
+      tryPermit={false}
     />
   );
 };

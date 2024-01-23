@@ -32,6 +32,7 @@ export enum ModalType {
   Switch,
   GovRepresentatives,
   ListBurraForSales,
+  RepayGHOBurraVault,
 }
 
 export interface ModalArgsType {
@@ -83,13 +84,21 @@ export interface ModalContextType<T extends ModalArgsType> {
     name: string,
     funnel: string
   ) => void;
-  openListForSale: (
-    underlyingAsset: string,
-    currentRateMode: InterestRate,
-    isFrozen: boolean,
-    currentMarket: string,
+  openRepayGHOBurraVault: (
+    // underlyingAsset: string,
+    // currentRateMode: InterestRate,
+    // isFrozen: boolean,
+    // currentMarket: string,
     name: string,
-    funnel: string
+    // funnel: string
+  ) => void;
+  openListForSale: (
+    // underlyingAsset: string,
+    // currentRateMode: InterestRate,
+    // isFrozen: boolean,
+    // currentMarket: string,
+    name: string,
+    // funnel: string
   ) => void;
   openCollateralChange: (
     underlyingAsset: string,
@@ -219,17 +228,16 @@ export const ModalContextProvider: React.FC = ({ children }) => {
             funnel,
           });
         },
-        openListForSale: (underlyingAsset, currentRateMode, isFrozen, currentMarket, name, funnel) => {
-          setType(ModalType.ListBurraForSales);
-          setArgs({ underlyingAsset, currentRateMode, isFrozen });
+        openRepayGHOBurraVault: (name) => {
+          setType(ModalType.RepayGHOBurraVault);
+          // setArgs({  });
 
-          trackEvent(GENERAL.OPEN_MODAL, {
-            modal: 'Repay',
-            asset: underlyingAsset,
-            assetName: name,
-            market: currentMarket,
-            funnel,
-          });
+          // trackEvent(GENERAL.OPEN_MODAL, {
+          //   modal: 'RepayGHOBurraVault',
+          // });
+        },
+        openListForSale: (name) => {
+          setType(ModalType.ListBurraForSales);
         },
         openCollateralChange: (
           underlyingAsset,

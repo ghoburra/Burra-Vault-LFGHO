@@ -173,30 +173,23 @@ export const SuppliedPositionsList = () => {
         </>
       }
     >
-      {userPositionData?.deposit ? (
+      {sortedReserves.length ? (
         <>
           {!downToXSM && <RenderHeader />}
-           <SuppliedPositionsListItem  />
+          {sortedReserves.map((item) => (
+            <Fragment key={item.underlyingAsset}>
+              <AssetCapsProvider asset={item.reserve}>
+                {downToXSM ? (
+                  <SuppliedPositionsListMobileItem {...item} />
+                ) : (
+                  <SuppliedPositionsListItem {...item} />
+                )}
+              </AssetCapsProvider>
+            </Fragment>
+          ))}
         </>
-        // <>
-        //   {!downToXSM && <RenderHeader />}
-        //   {sortedReserves.map((item) => (
-        //     <Fragment key={item.underlyingAsset}>
-        //       {/* <AssetCapsProvider asset={item.reserve}> */}
-        //         {downToXSM ? (
-        //           <SuppliedPositionsListMobileItem {...item} />
-        //         ) : (
-        //           <SuppliedPositionsListItem {...item} />
-        //         )}
-        //       {/* </AssetCapsProvider> */}
-        //     </Fragment>
-        //   ))}
-        // </>
       ) : (
-        <>
-         {!downToXSM && <RenderHeader />}
         <DashboardContentNoData text={<Trans>Nothing supplied yet</Trans>} />
-         </>
       )}
     </ListWrapper>
   );

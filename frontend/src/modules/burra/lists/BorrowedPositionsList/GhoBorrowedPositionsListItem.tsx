@@ -32,7 +32,7 @@ export const GhoBorrowedPositionsListItem = ({
   reserve,
   borrowRateMode,
 }: ComputedUserReserveData & { borrowRateMode: InterestRate }) => {
-  const { openBorrow, openRepay, openDebtSwitch } = useModalContext();
+  const { openBorrow, openRepayGHOBurraVault, openDebtSwitch } = useModalContext();
   const { currentMarket, currentMarketData } = useProtocolDataContext();
   const { ghoLoadingData, ghoReserveData, ghoUserData, user } = useAppDataContext();
   // const [ghoUserDataFetched, ghoUserQualifiesForDiscount] = useRootStore((store) => [
@@ -69,13 +69,8 @@ const {bucketCap} = useBurra()
     borrowDisabled:false,
     showSwitchButton: false,
     onRepayClick: () =>
-      openRepay(
-        reserve.underlyingAsset,
-        InterestRate.Stable,
-        false,
-        currentMarket,
-        reserve.symbol,
-        "dashboard"
+      openRepayGHOBurraVault(
+        "GHO"
       ),
     onBorrowClick: () =>
       openBorrow("0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2", currentMarket, "GHO", 'dashboard'),

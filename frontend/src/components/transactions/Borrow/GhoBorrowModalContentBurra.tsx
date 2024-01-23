@@ -131,9 +131,9 @@ export const GhoBorrowModalContentBurra = ({
   const hasGhoBorrowPositions = ghoUserData.userGhoBorrowBalance > 0;
   const userStakedAaveBalance: number = ghoUserData.userDiscountTokenBalance;
   const discountAvailable = ghoUserQualifiesForDiscount(amount);
- const { bucketCap } = useBurra();
+ const { bucketCap , currentRate} = useBurra();
   // amount calculations
-  const maxAmountToBorrow = bucketCap?.level.toString() || "10000"
+  const maxAmountToBorrow = bucketCap?.cap.toString() || "1000000000000000000000000" 
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected
@@ -287,7 +287,7 @@ export const GhoBorrowModalContentBurra = ({
           mb={4}
           align="flex-start"
         >
-          {/* <Box sx={{ textAlign: 'right' }}>
+          <Box sx={{ textAlign: 'right' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               <BorrowAPY
                 ghoLoadingData={ghoLoadingData}
@@ -297,12 +297,12 @@ export const GhoBorrowModalContentBurra = ({
                 userDiscountTokenBalance={ghoUserData.userDiscountTokenBalance}
                 underlyingAsset={underlyingAsset}
                 customMarket={customMarket}
-                currentBorrowAPY={currentBorrowAPY}
-                futureBorrowAPY={futureBorrowAPY}
+                currentBorrowAPY={currentRate? currentRate : 3.03}
+                futureBorrowAPY={currentRate? currentRate : 3.03}
                 onDetailsClick={() => closeModal()}
               />
             </Box>
-          </Box> */}
+          </Box>
         </Row>
         {discountAvailable && (
           <Typography variant="helperText" color="text.secondary">
