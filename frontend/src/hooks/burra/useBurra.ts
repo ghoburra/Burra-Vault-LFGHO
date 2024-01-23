@@ -151,7 +151,6 @@ export const useBurra = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (vaultContract) {
-        console.log(currentAccount);
         const interestStrategy = await vaultContract?.getInterestStrategyForUser(currentAccount);
         const deposit = await vaultContract?.getDepositForUser(currentAccount);
         const burraOwned = await vaultContract?.balanceOf(currentAccount);

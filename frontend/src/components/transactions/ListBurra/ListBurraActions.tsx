@@ -82,7 +82,6 @@ export const ListBurraActions = ({
   const { buildApproveCollateralTx, buildListBurraTx, userPositionData, GHO } = useBurra();
 
   const approval = async () => {
-    console.log('POSITION DATA', userPositionData);
     try {
       const GHO_ADDRESS = GHO;
       const tx = buildApproveCollateralTx('10000000000000000000000000000', GHO_ADDRESS);
@@ -109,8 +108,8 @@ export const ListBurraActions = ({
   const action = async () => {
     try {
       setMainTxState({ ...mainTxState, loading: true });
-
-      if (requiresPermission) await approval();
+      const needAllowance = await checkNeedAllowance()
+      if (needAllowance) await approval();
       const tx = buildListBurraTx(amountToRepay);
       if (tx) {
         const estimatedTx = await estimateGasLimit(tx);
@@ -139,14 +138,15 @@ export const ListBurraActions = ({
     }
   };
 
-  useEffect(() => {
-    const checkAllowance = async () => {
-      const rp =
-        Number(await ghoContract?.allowance(currentAccount, VAULT)) < Number(amountToRepay);
-      setRequiresPermission(rp);
-    };
-    checkAllowance();
-  }, []);
+  const checkNeedAllowance = async () => {
+    if (ghoContract) {
+      const allowance = await ghoContract?.allowance(currentAccount, VAULT)
+      const needAllowance: boolean =
+        Number(allowance) < Number(amountToRepay) * 1000000000000000000;
+      return needAllowance
+    }
+  };
+
 
   return (
     <TxActionsWrapper

@@ -34,23 +34,6 @@ export const RepayModalContentBurraV2 = ({}: { debtType: InterestRate }) => {
     setAmount(value);
   };
 
-  // token info
-  useEffect(() => {
-    console.log(
-      'calculation:',
-      'amount',
-      amount,
-      'price',
-      price,
-      'userPositionData?.debtInDollars',
-      userPositionData?.debtInDollars
-    );
-    console.log('amount * price:', Number(amount) * Number(price));
-    console.log(
-      'calcolo:',
-      Number(userPositionData?.debtInDollars) / WAD - Number(amount) * Number(price)
-    );
-  }, [amount]);
 
   const amountAfterRepay = valueToBigNumber(debt)
     .minus(amount || '0')
