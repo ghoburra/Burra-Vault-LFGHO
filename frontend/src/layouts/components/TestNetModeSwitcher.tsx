@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro';
 import { Box, FormControlLabel, ListItem, ListItemText, MenuItem, Switch } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRootStore } from 'src/store/root';
 import { SETTINGS } from 'src/utils/mixPanelEvents';
 
@@ -21,6 +21,11 @@ export const TestNetModeSwitcher = ({ component = ListItem }: TestNetModeSwitche
     // Set window.location to trigger a page reload when navigating to the the dashboard
     window.location.href = '/';
   };
+
+  useEffect(() => {
+    if (!testnetsEnabledLocalstorage)
+      localStorage.setItem(testnetsEnabledId, 'true');
+  }, [testnetsEnabledLocalstorage])
 
   return (
     <Box
@@ -52,3 +57,4 @@ export const TestNetModeSwitcher = ({ component = ListItem }: TestNetModeSwitche
     </Box>
   );
 };
+
