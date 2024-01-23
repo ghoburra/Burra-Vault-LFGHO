@@ -154,7 +154,7 @@ const GhoBorrowedPositionsListItemDesktop = ({
         </ContentWithTooltip>
       </ListColumn>
       <ListButtonsColumn>
-        <Button disabled={disableRepay} variant="outlined" onClick={onRepayClick}>
+        <Button disabled={disableRepay} variant="gradient" onClick={onRepayClick}>
           <Trans>Repay</Trans>
         </Button>
       </ListButtonsColumn>
