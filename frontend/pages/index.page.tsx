@@ -5,6 +5,7 @@ import StyledToggleButton from 'src/components/StyledToggleButton';
 import StyledToggleButtonGroup from 'src/components/StyledToggleButtonGroup';
 import { usePermissions } from 'src/hooks/usePermissions';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
+import { BurraContentWrapper } from 'src/modules/burra/BurraContentWrapper';
 import { useRootStore } from 'src/store/root';
 
 import { ConnectWalletPaper } from '../src/components/ConnectWalletPaper';
@@ -12,7 +13,6 @@ import { ContentContainer } from '../src/components/ContentContainer';
 import { MainLayout } from '../src/layouts/MainLayout';
 import { useWeb3Context } from '../src/libs/hooks/useWeb3Context';
 import { BurraTopPanel } from '../src/modules/burra/BurraTopPanel';
-import { BurraContentWrapper } from 'src/modules/burra/BurraContentWrapper';
 
 export default function Home() {
   const { currentAccount, loading: web3Loading } = useWeb3Context();

@@ -46,10 +46,10 @@ export const DashboardListTopPanel = ({
         }}
         label={<Trans>Show assets with 0 balance</Trans>}
       /> */}
-
       {/* {(STAGING_ENV || ENABLE_TESTNET) && <FaucetButton />} */}
       {/* {!ENABLE_TESTNET && <BridgeButton bridge={bridge} />} */}
-      Burra (BU) are essentially debt bonds. GHO debt owners can list some of their Burra shares for other people to buy.
+      Burra (BU) are essentially debt bonds. GHO debt owners can list some of their Burra shares for
+      other people to buy.
     </Box>
   );
 };

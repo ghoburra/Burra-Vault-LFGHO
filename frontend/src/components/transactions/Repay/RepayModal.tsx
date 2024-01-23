@@ -10,8 +10,8 @@ import { BasicModal } from '../../primitives/BasicModal';
 import { ModalWrapper } from '../FlowCommons/ModalWrapper';
 import { CollateralRepayModalContent } from './CollateralRepayModalContent';
 import { RepayModalContent } from './RepayModalContent';
-import { RepayType, RepayTypeSelector } from './RepayTypeSelector';
 import { RepayModalContentBurraV2 } from './RepayModalContentBurraV2';
+import { RepayType, RepayTypeSelector } from './RepayTypeSelector';
 
 export const RepayModal = () => {
   const { type, close, args, mainTxState } = useModalContext() as ModalContextType<{

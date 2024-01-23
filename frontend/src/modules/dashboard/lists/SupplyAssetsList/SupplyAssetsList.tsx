@@ -216,11 +216,7 @@ export const SupplyAssetsList = () => {
 
   if (loadingReserves || loading)
     return (
-      <ListLoader
-        head={head.map((col) => col.title)}
-        title={<Trans>Burra</Trans>}
-        withTopMargin
-      />
+      <ListLoader head={head.map((col) => col.title)} title={<Trans>Burra</Trans>} withTopMargin />
     );
 
   const supplyDisabled = !tokensToSupply.length;

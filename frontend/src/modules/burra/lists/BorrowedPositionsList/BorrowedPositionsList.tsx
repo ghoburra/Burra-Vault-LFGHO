@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { fetchIconSymbolAndName } from 'src/ui-config/reservePatches';
 import { GHO_SYMBOL } from 'src/utils/ghoUtilities';
@@ -30,7 +31,6 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { ListTopInfoItem } from '../ListTopInfoItem';
 import { BorrowedPositionsListItemWrapper } from './BorrowedPositionsListItemWrapper';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 const head = [
   {
@@ -70,7 +70,7 @@ export const BorrowedPositionsList = () => {
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
   const showEModeButton = currentMarketData.v3 && Object.keys(eModes).length > 1;
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
-  const {  userPositionData } = useBurra()
+  const { userPositionData } = useBurra();
 
   let borrowPositions =
     user?.userReservesData.reduce((acc, userReserve) => {
@@ -224,10 +224,7 @@ export const BorrowedPositionsList = () => {
               key={item.underlyingAsset + item.borrowRateMode}
             />
           ))} */}
-           <BorrowedPositionsListItemWrapper
-              item={sortedReserves[0]}
-              key={0}
-            />
+          <BorrowedPositionsListItemWrapper item={sortedReserves[0]} key={0} />
         </>
       ) : (
         <DashboardContentNoData text={<Trans>Nothing borrowed yet</Trans>} />

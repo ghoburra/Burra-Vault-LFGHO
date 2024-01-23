@@ -21,6 +21,7 @@ import { Row } from 'src/components/primitives/Row';
 import { StyledTxModalToggleButton } from 'src/components/StyledToggleButton';
 import { StyledTxModalToggleGroup } from 'src/components/StyledToggleButtonGroup';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useAssetCaps } from 'src/hooks/useAssetCaps';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
@@ -36,11 +37,10 @@ import { GasEstimationError } from '../FlowCommons/GasEstimationError';
 import { ModalWrapperProps } from '../FlowCommons/ModalWrapper';
 import { DetailsHFLine, TxModalDetails } from '../FlowCommons/TxModalDetails';
 import { BorrowActions } from './BorrowActions';
+import { BorrowActionsBurra } from './BorrowActionsBurra';
 import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { GhoBorrowSuccessView } from './GhoBorrowSuccessView';
 import { ParameterChangewarning } from './ParameterChangewarning';
-import { BorrowActionsBurra } from './BorrowActionsBurra';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -131,9 +131,9 @@ export const GhoBorrowModalContentBurra = ({
   const hasGhoBorrowPositions = ghoUserData.userGhoBorrowBalance > 0;
   const userStakedAaveBalance: number = ghoUserData.userDiscountTokenBalance;
   const discountAvailable = ghoUserQualifiesForDiscount(amount);
- const { bucketCap , currentRate} = useBurra();
+  const { bucketCap, currentRate } = useBurra();
   // amount calculations
-  const maxAmountToBorrow = bucketCap?.cap.toString() || "1000000000000000000000000" 
+  const maxAmountToBorrow = bucketCap?.cap.toString() || '1000000000000000000000000';
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected
@@ -297,8 +297,8 @@ export const GhoBorrowModalContentBurra = ({
                 userDiscountTokenBalance={ghoUserData.userDiscountTokenBalance}
                 underlyingAsset={underlyingAsset}
                 customMarket={customMarket}
-                currentBorrowAPY={currentRate? currentRate : 3.03}
-                futureBorrowAPY={currentRate? currentRate : 3.03}
+                currentBorrowAPY={currentRate ? currentRate : 3.03}
+                futureBorrowAPY={currentRate ? currentRate : 3.03}
                 onDetailsClick={() => closeModal()}
               />
             </Box>

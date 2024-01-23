@@ -85,13 +85,13 @@ export const ModalWrapper: React.FC<{
     return underlyingAsset === userReserve.underlyingAsset;
   }) as ComputedUserReserveData;
 
-  const symbol = "GHO"
+  const symbol = 'GHO';
 
   return (
     <AssetCapsProvider asset={poolReserve}>
       {!mainTxState.success && (
         <>
-        <TxModalTitle title={title} symbol={hideTitleSymbol ? undefined : symbol} />
+          <TxModalTitle title={title} symbol={hideTitleSymbol ? undefined : symbol} />
         </>
       )}
       {isWrongNetwork && !readOnlyModeAddress && (
@@ -109,7 +109,8 @@ export const ModalWrapper: React.FC<{
       {children({
         isWrongNetwork,
         nativeBalance: walletBalances[API_ETH_MOCK_ADDRESS.toLowerCase()]?.amount || '0',
-        tokenBalance: walletBalances["0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2".toLowerCase()]?.amount || '0',
+        tokenBalance:
+          walletBalances['0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2'.toLowerCase()]?.amount || '0',
         poolReserve,
         symbol,
         underlyingAsset,

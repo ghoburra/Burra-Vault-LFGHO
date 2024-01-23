@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro';
 import { BoxProps } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { ComputedReserveData } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { SignedParams } from 'src/hooks/useApprovalTx';
 import { useModalContext } from 'src/hooks/useModal';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
@@ -11,7 +12,6 @@ import { getErrorTextFromError, TxAction } from 'src/ui-config/errorMapping';
 
 import { TxActionsWrapper } from '../TxActionsWrapper';
 import { checkRequiresApproval } from '../utils';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export interface RepayActionProps extends BoxProps {
   amountToRepay: string;
@@ -63,7 +63,7 @@ export const ListBurraActions = ({
     store.currentMarketData,
   ]);
   const { sendTx } = useWeb3Context();
-  const { VAULT, ghoContract } = useBurra()
+  const { VAULT, ghoContract } = useBurra();
   // const { refetchGhoData, refetchIncentiveData, refetchPoolData } = useBackgroundDataProvider();
   const [signatureParams, setSignatureParams] = useState<SignedParams | undefined>();
   const {
@@ -77,16 +77,15 @@ export const ListBurraActions = ({
     setApprovalTxState,
   } = useModalContext();
   const { currentAccount } = useWeb3Context();
-  const [requiresPermission, setRequiresPermission] = useState(false)
+  const [requiresPermission, setRequiresPermission] = useState(false);
 
-
-  const { buildApproveCollateralTx, buildListBurraTx, userPositionData, GHO } = useBurra()
+  const { buildApproveCollateralTx, buildListBurraTx, userPositionData, GHO } = useBurra();
 
   const approval = async () => {
-    console.log("POSITION DATA", userPositionData)
+    console.log('POSITION DATA', userPositionData);
     try {
-      const GHO_ADDRESS = GHO
-      const tx = buildApproveCollateralTx("10000000000000000000000000000", GHO_ADDRESS)
+      const GHO_ADDRESS = GHO;
+      const tx = buildApproveCollateralTx('10000000000000000000000000000', GHO_ADDRESS);
       if (tx) {
         const gasLimitedTx = await estimateGasLimit(tx);
         const response = await sendTx(gasLimitedTx);
@@ -107,14 +106,12 @@ export const ListBurraActions = ({
     }
   };
 
-
   const action = async () => {
     try {
       setMainTxState({ ...mainTxState, loading: true });
 
-      if (requiresPermission)
-        await approval()
-      const tx = buildListBurraTx(amountToRepay)
+      if (requiresPermission) await approval();
+      const tx = buildListBurraTx(amountToRepay);
       if (tx) {
         const estimatedTx = await estimateGasLimit(tx);
         const response = await sendTx(estimatedTx);
@@ -144,19 +141,18 @@ export const ListBurraActions = ({
 
   useEffect(() => {
     const checkAllowance = async () => {
-      const rp = Number(await ghoContract?.allowance(currentAccount, VAULT)) < Number(amountToRepay)
-      setRequiresPermission(rp)
-    }
-    checkAllowance()
-  }, [])
-
-
+      const rp =
+        Number(await ghoContract?.allowance(currentAccount, VAULT)) < Number(amountToRepay);
+      setRequiresPermission(rp);
+    };
+    checkAllowance();
+  }, []);
 
   return (
     <TxActionsWrapper
       blocked={false}
       preparingTransactions={loadingTxns}
-      symbol={"GHO"}
+      symbol={'GHO'}
       mainTxState={mainTxState}
       approvalTxState={approvalTxState}
       requiresAmount
@@ -168,7 +164,7 @@ export const ListBurraActions = ({
       handleAction={action}
       handleApproval={approval}
       actionText={<Trans>List Burra{symbol}</Trans>}
-      actionInProgressText={<Trans>Repaying {symbol}</Trans>}
+      actionInProgressText={<Trans>Listing {symbol}</Trans>}
       tryPermit={false}
     />
   );

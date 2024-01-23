@@ -38,7 +38,6 @@ export const BorrowModal = () => {
         underlyingAsset={args.underlyingAsset}
         keepWrappedSymbol={!borrowUnWrapped}
         requiredPermission={PERMISSION.BORROWER}
-
       >
         {(params) =>
           displayGho({ symbol: params.symbol, currentMarket }) ? (

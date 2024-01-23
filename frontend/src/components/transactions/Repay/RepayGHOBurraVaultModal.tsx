@@ -1,14 +1,14 @@
 import { InterestRate, PERMISSION } from '@aave/contract-helpers';
+import { Trans } from '@lingui/macro';
 import React, { useState } from 'react';
 import { ModalContextType, ModalType, useModalContext } from 'src/hooks/useModal';
 
 import { BasicModal } from '../../primitives/BasicModal';
-import { RepayType } from './RepayTypeSelector';
+import { AssetInputBurra } from '../AssetInputBurra';
 import { ModalWrapper } from '../FlowCommons/ModalWrapper';
-import { Trans } from '@lingui/macro';
 import { ModalWrapperIndie } from '../FlowCommons/ModalWrapperIndie';
 import { RepayModalContentBurraV2 } from './RepayModalContentBurraV2';
-import { AssetInputBurra } from '../AssetInputBurra';
+import { RepayType } from './RepayTypeSelector';
 
 export const RepayGHOBurraVaultModal = () => {
   const { type, close, args, mainTxState } = useModalContext() as ModalContextType<{
@@ -17,8 +17,6 @@ export const RepayGHOBurraVaultModal = () => {
     isFrozen: boolean;
   }>;
   const [repayType, setRepayType] = useState(RepayType.BALANCE);
-
-
 
   const handleClose = () => {
     setRepayType(RepayType.BALANCE);
@@ -33,9 +31,7 @@ export const RepayGHOBurraVaultModal = () => {
         requiredPermission={PERMISSION.BORROWER}
       >
         {(params) => {
-          return (
-            <RepayModalContentBurraV2 {...params} debtType={InterestRate.Stable} />
-          );
+          return <RepayModalContentBurraV2 {...params} debtType={InterestRate.Stable} />;
         }}
       </ModalWrapperIndie>
     </BasicModal>

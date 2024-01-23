@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { fetchIconSymbolAndName } from 'src/ui-config/reservePatches';
 import { GHO_SYMBOL } from 'src/utils/ghoUtilities';
@@ -30,7 +31,6 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { ListTopInfoItem } from '../ListTopInfoItem';
 import { BurraBorrowedPositionsListItemWrapper } from './BurraBorrowedPositionsListItemWrapper';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 const head = [
   {
@@ -70,7 +70,7 @@ export const BurraBorrowedPositionsList = () => {
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
   const showEModeButton = currentMarketData.v3 && Object.keys(eModes).length > 1;
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
-  const {  userPositionData } = useBurra()
+  const { userPositionData } = useBurra();
 
   let borrowPositions =
     user?.userReservesData.reduce((acc, userReserve) => {
@@ -160,7 +160,9 @@ export const BurraBorrowedPositionsList = () => {
   };
 
   if (loading)
-    return <ListLoader title={<Trans>Your BURRA (BU) Shares</Trans>} head={head.map((c) => c.title)} />;
+    return (
+      <ListLoader title={<Trans>Your BURRA (BU) Shares</Trans>} head={head.map((c) => c.title)} />
+    );
 
   return (
     <ListWrapper
@@ -224,10 +226,7 @@ export const BurraBorrowedPositionsList = () => {
               key={item.underlyingAsset + item.borrowRateMode}
             />
           ))} */}
-           <BurraBorrowedPositionsListItemWrapper
-              item={sortedReserves[0]}
-              key={0}
-            />
+          <BurraBorrowedPositionsListItemWrapper item={sortedReserves[0]} key={0} />
         </>
       ) : (
         <DashboardContentNoData text={<Trans>Nothing borrowed yet</Trans>} />

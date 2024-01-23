@@ -11,7 +11,7 @@ export const BurraBorrowedPositionsListItemWrapper = ({ item }: { item: Dashboar
 
   return (
     // <AssetCapsProvider asset={item.reserve}>
-     <BurraBorrowedPositionsListItem {...item} />
+    <BurraBorrowedPositionsListItem {...item} />
     // </AssetCapsProvider>
   );
 };

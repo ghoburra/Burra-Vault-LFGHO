@@ -4,6 +4,7 @@ import create from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { AnalyticsSlice, createAnalyticsSlice } from './analyticsSlice';
+import { BurraSlice, createBurraSlice } from './burraSlice';
 import { createGhoSlice, GhoSlice } from './ghoSlice';
 import { createGovernanceSlice, GovernanceSlice } from './governanceSlice';
 import { createIncentiveSlice, IncentiveSlice } from './incentiveSlice';
@@ -17,7 +18,6 @@ import { getQueryParameter } from './utils/queryParams';
 import { createV3MigrationSlice, V3MigrationSlice } from './v3MigrationSlice';
 import { createWalletDomainsSlice, WalletDomainsSlice } from './walletDomains';
 import { createWalletSlice, WalletSlice } from './walletSlice';
-import { BurraSlice, createBurraSlice } from './burraSlice';
 
 enableMapSet();
 
