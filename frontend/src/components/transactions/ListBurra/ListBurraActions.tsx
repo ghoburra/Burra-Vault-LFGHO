@@ -166,8 +166,8 @@ export const ListBurraActions = ({
       {...props}
       handleAction={action}
       handleApproval={approval}
-      actionText={<Trans>List Burra{symbol}</Trans>}
-      actionInProgressText={<Trans>Listing {symbol}</Trans>}
+      actionText={<Trans>List Burra (BU)</Trans>}
+      actionInProgressText={<Trans>Listing Burra (BU)</Trans>}
       tryPermit={false}
     />
   );

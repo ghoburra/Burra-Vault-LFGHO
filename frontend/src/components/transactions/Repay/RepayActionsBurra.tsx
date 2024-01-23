@@ -164,8 +164,8 @@ export const RepayActionsBurra = ({
       {...props}
       handleAction={action}
       handleApproval={approval}
-      actionText={<Trans>Repay{symbol}</Trans>}
-      actionInProgressText={<Trans>Repaying {symbol}</Trans>}
+      actionText={<Trans>Repay GHO</Trans>}
+      actionInProgressText={<Trans>Repaying GHO</Trans>}
       tryPermit={false}
     />
   );
