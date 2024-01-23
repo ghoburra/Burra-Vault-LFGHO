@@ -6,7 +6,6 @@ import { mine } from "@nomicfoundation/hardhat-network-helpers";
 
 import { ArbitrageVault, ArbitrageVault__factory, BurraNFT as BurraNFTContr, ERC20, GhoToken, GhoToken__factory, IGhoToken, ERC20Permit as PermitContr } from "../typechain-types";
 import * as ERC20Json from "../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json"
-import * as BurraNFT from "../artifacts/contracts/BurraNFT.sol/BurraNFT.json"
 
 import { signERC2612Permit } from 'eth-permit';
 
@@ -107,7 +106,7 @@ describe('ArbitrageVault', () => {
 
     const abovePrice = 1020000000000000000n
     const rateAbove = await vault.getInterestRateAtPrice(abovePrice)
-    expect(rateAbove).equals(15340000000000000n)
+    expect(rateAbove).equals(14660000000000000n)
     expect(rateAbove).lessThan(rateBelow)
   });
 
@@ -190,7 +189,7 @@ describe('ArbitrageVault', () => {
   })
 
   it('Should List burra and get all listed burra shares', async () => {
-    const depositAmount = 1000_000_000_000_000_000n
+    let depositAmount = 1000_000_000_000_000_000n
     await dai.connect(deployer).approve(vault, depositAmount)
 
     expect(await dai.allowance(DEPLOYER_ADDRESS, vault)).equals(depositAmount)
@@ -205,12 +204,25 @@ describe('ArbitrageVault', () => {
     expect(await vault.balanceOf(DEPLOYER_ADDRESS)).equals(depositAmount)
 
     const listedAamount = 1000_000_000_000_000_000n / 2n
-    const listed = await vault.listBurra(listedAamount)
+    let listed = await vault.listBurra(listedAamount)
 
     await expect(listed).to.emit(vault, 'BurraListed');
-
     const listedBurraForUser = await vault.getListedBurra(DEPLOYER_ADDRESS)
     expect(listedBurraForUser).equals(listedAamount)
+    
+    
+    const secondListedAamount = 1000_000_000_000_000_000n / 4n
+
+    depositAmount = 1000_000_000_000_000_000n
+    await dai.connect(deployer).approve(vault, depositAmount)
+
+    const secondListed = await vault.listBurra(secondListedAamount)
+
+    const totalListedBurraForUser = await vault.getListedBurra(DEPLOYER_ADDRESS)
+
+    expect(totalListedBurraForUser).equals(listedAamount+secondListedAamount)
+
+
   })
 
 

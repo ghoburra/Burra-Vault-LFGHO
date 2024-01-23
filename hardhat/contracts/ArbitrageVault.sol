@@ -6,7 +6,6 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {GhoToken} from "./GhoToken.sol";
-import {BurraNFT} from "./BurraNFT.sol";
 import {PriceConsumerV3} from "./PriceConsumerV3.sol";
 import "./aaveLibraries/WadRayMath.sol";
 import "./aaveLibraries/MathUtils.sol";
