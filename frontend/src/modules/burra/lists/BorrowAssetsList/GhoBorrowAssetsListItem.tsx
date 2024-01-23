@@ -186,15 +186,8 @@ const GhoBorrowAssetsListItemDesktop = ({
         />
       </ListColumn>
       <ListButtonsColumn>
-        <Button disabled={borrowButtonDisable} variant="contained" onClick={onBorrowClick}>
+        <Button disabled={borrowButtonDisable} variant="gradient" onClick={onBorrowClick}>
           <Trans>Borrow</Trans>
-        </Button>
-        <Button
-          variant="outlined"
-          component={Link}
-          href={ROUTES.reserveOverview(underlyingAsset, currentMarket)}
-        >
-          <Trans>Details</Trans>
         </Button>
       </ListButtonsColumn>
     </ListItem>

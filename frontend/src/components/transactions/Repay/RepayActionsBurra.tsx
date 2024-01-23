@@ -82,8 +82,9 @@ export const RepayActionsBurra = ({
   const { buildApproveCollateralTx, buildRepayTx, userPositionData, GHO } = useBurra();
 
   const approval = async () => {
-    console.log('POSITION DATA', userPositionData);
     try {
+      const needAllowance = await checkNeedAllowance()
+      if (!needAllowance) return
       const GHO_ADDRESS = GHO;
       const tx = buildApproveCollateralTx('10000000000000000000000000000', GHO_ADDRESS);
       if (tx) {
@@ -137,18 +138,14 @@ export const RepayActionsBurra = ({
       });
     }
   };
-
-  useEffect(() => {
-    const checkAllowance = async () => {
-      if (ghoContract) {
-        const rp: boolean =
-          (await ghoContract?.allowance(currentAccount, VAULT)) < Number(amountToRepay);
-        setRequiresPermission(rp);
-      }
-    };
-    checkAllowance();
-  }, [VAULT, ghoContract]);
-
+  const checkNeedAllowance = async () => {
+    if (ghoContract) {
+      const allowance = await ghoContract?.allowance(currentAccount, VAULT)
+      const needAllowance: boolean =
+       Number(allowance) < Number(amountToRepay)*1000000000000000000;
+      return needAllowance
+    }
+  };
   return (
     <TxActionsWrapper
       blocked={false}
