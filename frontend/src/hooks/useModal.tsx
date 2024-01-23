@@ -131,6 +131,8 @@ export interface ModalContextType<T extends ModalArgsType> {
   args: T;
   mainTxState: TxStateType;
   approvalTxState: TxStateType;
+  successTx: boolean;
+  setSuccessTx: (isSuccess:boolean) => void;
   setApprovalTxState: (data: TxStateType) => void;
   setMainTxState: (data: TxStateType) => void;
   gasLimit: string;
@@ -152,6 +154,7 @@ export const ModalContextProvider: React.FC = ({ children }) => {
   // contains arbitrary key-value pairs as a modal context
   const [args, setArgs] = useState<ModalArgsType>({});
   const [approvalTxState, setApprovalTxState] = useState<TxStateType>({});
+  const [successTx, setSuccessTx] = useState<boolean>(false);
   const [mainTxState, setMainTxState] = useState<TxStateType>({});
   const [gasLimit, setGasLimit] = useState<string>('');
   const [loadingTxns, setLoadingTxns] = useState(false);
@@ -369,6 +372,8 @@ export const ModalContextProvider: React.FC = ({ children }) => {
         setLoadingTxns,
         txError,
         setTxError,
+        successTx, 
+        setSuccessTx
       }}
     >
       {children}

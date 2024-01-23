@@ -8,6 +8,7 @@ import { erc20Abi } from 'src/store/abis/erc20';
 import { GHO_ABI, VAULT_ABI } from './abis';
 // @ts-ignore
 import { ArbitrageVault, GhoToken } from './typechain-types';
+import { useModalContext } from '../useModal';
 
 export const useBurra = () => {
   const { provider } = useWeb3Context();
@@ -39,7 +40,9 @@ export const useBurra = () => {
     balance: string | number;
   }>();
   const [error, setError] = useState('');
-  const { currentAccount } = useWeb3Context();
+  const [shouldUpdate, setShouldUpdate] = useState('');
+  const { currentAccount, } = useWeb3Context();
+  const { successTx } = useModalContext();
 
   useEffect(() => {
     const initializeContracts = async () => {
@@ -142,14 +145,7 @@ export const useBurra = () => {
     },
     [currentAccount, vaultContract]
   );
-
-  // need to return:
-  // Interest strategy for user OK
-  // collateral OK
-  // burra tokens OK
-  // gho tokens borrowed
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       if (vaultContract) {
         const interestStrategy = await vaultContract?.getInterestStrategyForUser(currentAccount);
         const deposit = await vaultContract?.getDepositForUser(currentAccount);
@@ -182,9 +178,10 @@ export const useBurra = () => {
         });
       }
     };
-
+  useEffect(() => {
     fetchData();
-  }, [vaultContract, currentAccount]);
+  }, [vaultContract, currentAccount, successTx]);
+  
 
   useEffect(() => {
     const getBucketCapacity = async () => {
@@ -242,7 +239,7 @@ export const useBurra = () => {
 
     // if (vaultContract)
     getAllListedBurra();
-  }, [vaultContract, currentAccount]);
+  }, [vaultContract, currentAccount, successTx]);
 
   useEffect(() => {
     const getCurrentRate = async () => {
@@ -267,6 +264,7 @@ export const useBurra = () => {
     buildBorrowGHOTx,
     buildRepayTx,
     buildListBurraTx,
+    fetchData,
     listedBurraPerUser,
     userPositionData,
     bucketCap,
@@ -278,6 +276,6 @@ export const useBurra = () => {
     VAULT,
     GHO,
     price,
-    WAD,
+    WAD
   };
 };

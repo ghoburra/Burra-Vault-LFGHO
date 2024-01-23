@@ -53,11 +53,12 @@ export const BorrowActionsBurra = React.memo(
       setGasLimit,
       setLoadingTxns,
       setApprovalTxState,
+      setSuccessTx
     } = useModalContext();
     const { sendTx } = useWeb3Context();
     const [requiresApproval, setRequiresApproval] = useState<boolean>(false);
     const [approvedAmount, setApprovedAmount] = useState<ApproveDelegationType | undefined>();
-    const { buildApproveCollateralTx, buildBorrowGHOTx } = useBurra();
+    const { buildApproveCollateralTx, buildBorrowGHOTx, fetchData } = useBurra();
 
     const approval = async () => {
       try {
@@ -90,6 +91,7 @@ export const BorrowActionsBurra = React.memo(
       const vaultContract = getVaultContract();
 
       try {
+        setSuccessTx(false)
         setMainTxState({ ...mainTxState, loading: true });
         await approval();
 
@@ -112,12 +114,10 @@ export const BorrowActionsBurra = React.memo(
             amount: amountToBorrow,
             assetName: 'GHO',
           });
-        }
 
-        // queryClient.invalidateQueries({ queryKey: queryKeysFactory.pool });
-        // refetchPoolData && refetchPoolData();
-        // refetchIncentiveData && refetchIncentiveData();
-        // refetchGhoData && refetchGhoData();
+          setSuccessTx(true)
+
+        }
       } catch (error) {
         const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
         setTxError(parsedError);
@@ -127,6 +127,7 @@ export const BorrowActionsBurra = React.memo(
         });
       }
     };
+
 
     return (
       <TxActionsWrapper

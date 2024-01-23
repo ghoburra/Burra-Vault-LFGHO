@@ -32,7 +32,7 @@ export const SupplyAssetsListItemModified = (props: {
         <b>Buy Debt Position:</b>
         <br />
         <Button variant="outlined"
-        onClick={()=> alert("This is just an example...")}
+        onClick={()=> alert("You can't buy this position because the position borrow rate is equal to the current one")}
         >Buy</Button>
       </ListColumn>
     </ListItem>

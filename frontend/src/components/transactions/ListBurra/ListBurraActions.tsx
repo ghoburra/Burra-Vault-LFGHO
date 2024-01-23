@@ -75,6 +75,7 @@ export const ListBurraActions = ({
     setGasLimit,
     setLoadingTxns,
     setApprovalTxState,
+    setSuccessTx
   } = useModalContext();
   const { currentAccount } = useWeb3Context();
   const [requiresPermission, setRequiresPermission] = useState(false);
@@ -127,6 +128,7 @@ export const ListBurraActions = ({
           amount: amountToRepay,
           assetName: symbol,
         });
+        setSuccessTx(true)
       }
     } catch (error) {
       const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);
