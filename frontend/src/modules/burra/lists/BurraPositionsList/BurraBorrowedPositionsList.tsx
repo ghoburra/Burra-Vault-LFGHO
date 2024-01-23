@@ -183,8 +183,8 @@ export const BurraBorrowedPositionsList = () => {
         <>
           {!!sortedReserves.length && (
             <>
-              <ListTopInfoItem title={<Trans>Balance</Trans>} value={user?.totalBorrowsUSD || 0} />
-              <ListTopInfoItem
+               <ListTopInfoItem title={<Trans>Balance</Trans>} value={userPositionData?.debtInDollars || 0} />
+             {/* <ListTopInfoItem
                 title={<Trans>APY</Trans>}
                 value={user?.debtAPY || 0}
                 percent
@@ -197,8 +197,8 @@ export const BurraBorrowedPositionsList = () => {
                     }}
                   />
                 }
-              />
-              <ListTopInfoItem
+              /> */}
+              {/* <ListTopInfoItem
                 title={<Trans>Borrow power used</Trans>}
                 value={collateralUsagePercent || 0}
                 percent
@@ -211,7 +211,7 @@ export const BurraBorrowedPositionsList = () => {
                     }}
                   />
                 }
-              />
+              /> */}
             </>
           )}
         </>

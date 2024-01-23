@@ -250,11 +250,11 @@ export const BorrowAssetsList = () => {
                     </Trans>
                   </Warning>
                 )}
-                {user?.totalCollateralMarketReferenceCurrency === '0' && (
+                {/* {user?.totalCollateralMarketReferenceCurrency === '0' && (
                   <Warning severity="info">
                     <Trans>To borrow you need to supply any asset to be used as collateral.</Trans>
                   </Warning>
-                )}
+                )} */}
               </>
             )}
           </Box>

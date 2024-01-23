@@ -148,7 +148,7 @@ export const SuppliedPositionsList = () => {
               />
               <ListTopInfoItem
                 title={<Trans>APY</Trans>}
-                value={user?.earnedAPY || 0}
+                value={4}
                 percent
                 tooltip={
                   <TotalSupplyAPYTooltip

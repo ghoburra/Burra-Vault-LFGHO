@@ -109,6 +109,7 @@ export const ListBurraActions = ({
   const action = async () => {
     try {
       setMainTxState({ ...mainTxState, loading: true });
+      setSuccessTx(false)
       const needAllowance = await checkNeedAllowance()
       if (needAllowance) await approval();
       const tx = buildListBurraTx(amountToRepay);
