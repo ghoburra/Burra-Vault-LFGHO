@@ -24,7 +24,7 @@ async function deployContracts(): Promise<void> {
   const VAULT_ADDRESS = await vault.getAddress()
 
   // Add ArbitrageVault as a facilitator in GhoToken
-  const bucketCapacity = ethers.parseEther('100');
+  const bucketCapacity = ethers.parseEther('100000000000');
   await ghoToken.connect(deployer).addFacilitator(VAULT_ADDRESS, "BURRA_FACILITATOR", bucketCapacity);
 
   const depositAmount = 1000_000_000_000_000_000n

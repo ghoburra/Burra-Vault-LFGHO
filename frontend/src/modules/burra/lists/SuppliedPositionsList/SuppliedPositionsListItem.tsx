@@ -18,117 +18,72 @@ import { ListValueColumn } from '../ListValueColumn';
 import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const SuppliedPositionsListItem = ({
-  reserve,
-  underlyingBalance,
-  underlyingBalanceUSD,
-  usageAsCollateralEnabledOnUser,
-  underlyingAsset,
-}: DashboardReserve) => {
+  // reserve,
+  // underlyingBalance,
+  // underlyingBalanceUSD,
+  // usageAsCollateralEnabledOnUser,
+  // underlyingAsset,
+}: any) => {
   const { user } = useAppDataContext();
-  const { isIsolated, aIncentivesData, isFrozen, isActive, isPaused } = reserve;
+  // const { isIsolated, aIncentivesData, isFrozen, isActive, isPaused } = reserve;
   const { currentMarketData, currentMarket } = useProtocolDataContext();
-  const { openSupply, openWithdraw, openCollateralChange, openSwap } = useModalContext();
   const { debtCeiling } = useAssetCaps();
   const isSwapButton = isFeatureEnabled.liquiditySwap(currentMarketData);
   const trackEvent = useRootStore((store) => store.trackEvent);
-  const {userPositionData, collateralData} = useBurra()
+  const { userPositionData, collateralData } = useBurra()
 
-  const canBeEnabledAsCollateral =
-    !debtCeiling.isMaxed &&
-    reserve.reserveLiquidationThreshold !== '0' &&
-    ((!reserve.isIsolated && !user.isInIsolationMode) ||
-      user.isolatedReserve?.underlyingAsset === reserve.underlyingAsset ||
-      (reserve.isIsolated && user.totalCollateralMarketReferenceCurrency === '0'));
+  // const canBeEnabledAsCollateral =
+  //   !debtCeiling.isMaxed &&
+  //   reserve.reserveLiquidationThreshold !== '0' &&
+  //   ((!reserve.isIsolated && !user.isInIsolationMode) ||
+  //     user.isolatedReserve?.underlyingAsset === reserve.underlyingAsset ||
+  //     (reserve.isIsolated && user.totalCollateralMarketReferenceCurrency === '0'));
 
-  const disableSwap = !isActive || isPaused || reserve.symbol == 'stETH';
-  const disableWithdraw = true;
-  const disableSupply = true;
 
   return (
     <ListItemWrapper
-      symbol={collateralData?.symbol|| "DAI"}
-      iconSymbol={reserve.iconSymbol} // PUT HERE DAI ICON SOMEHOW
+      symbol={collateralData?.symbol || "DAI"}
+      iconSymbol={"dai"}
       name={collateralData?.name || "DAI"}
       detailsAddress={collateralData?.address || ""}
       currentMarket={currentMarket}
-      frozen={reserve.isFrozen}
-      paused={isPaused}
-      data-cy={`dashboardSuppliedListItem_${reserve.symbol.toUpperCase()}_${
-        canBeEnabledAsCollateral && usageAsCollateralEnabledOnUser ? 'Collateral' : 'NoCollateral'
-      }`}
-      showSupplyCapTooltips
-      showDebtCeilingTooltips
+      frozen={false}
+      paused={false}
+      data-cy={"Collateral"}
+      showSupplyCapTooltips={false}
+      showDebtCeilingTooltips={false}
     >
       <ListValueColumn
-        symbol={reserve.iconSymbol}
+        symbol={"/icons/tokens/dai.svg"}
         value={userPositionData?.deposit}
         subValue={userPositionData?.deposit}
         disabled={userPositionData?.deposit === 0}
       />
 
       <ListAPRColumn
-        value={Number(reserve.supplyAPY)}
-        incentives={aIncentivesData}
-        symbol={reserve.symbol}
+        value={0}
+        incentives={undefined}
+        symbol={"DAI"}
       />
 
       <ListColumn>
         <ListItemUsedAsCollateral
           disabled={true}
-          isIsolated={isIsolated}
-          usageAsCollateralEnabledOnUser={usageAsCollateralEnabledOnUser}
-          canBeEnabledAsCollateral={canBeEnabledAsCollateral}
-          onToggleSwitch={() => {
-            openCollateralChange(
-              underlyingAsset,
-              currentMarket,
-              reserve.name,
-              'dashboard',
-              usageAsCollateralEnabledOnUser
-            );
-          }}
+          isIsolated={false}
+          usageAsCollateralEnabledOnUser={false}
+          canBeEnabledAsCollateral={true}
+          onToggleSwitch={() => alert("to be impl")}
           data-cy={`collateralStatus`}
         />
       </ListColumn>
 
       <ListButtonsColumn>
-        {isSwapButton ? (
-          <Button
-            disabled={disableSwap}
-            variant="contained"
-            onClick={() => {
-              // track
-
-              trackEvent(GENERAL.OPEN_MODAL, {
-                modal: 'Swap Collateral',
-                market: currentMarket,
-                assetName: reserve.name,
-                asset: underlyingAsset,
-              });
-              openSwap(underlyingAsset);
-            }}
-            data-cy={`swapButton`}
-          >
-            <Trans>Switch</Trans>
-          </Button>
-        ) : (
-          <Button
-            disabled={disableSupply}
-            variant="contained"
-            onClick={() => openSupply(underlyingAsset, currentMarket, reserve.name, 'dashboard')}
-          >
-            <Trans>Supply</Trans>
-          </Button>
-        )}
         <Button
-          disabled={disableWithdraw}
-          variant="outlined"
-          onClick={() => {
-            openWithdraw(underlyingAsset, currentMarket, reserve.name, 'dashboard');
-          }}
+          disabled={true}
         >
           <Trans>Withdraw</Trans>
         </Button>
+
       </ListButtonsColumn>
     </ListItemWrapper>
   );

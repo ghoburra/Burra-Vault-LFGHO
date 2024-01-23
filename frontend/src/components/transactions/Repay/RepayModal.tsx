@@ -11,7 +11,7 @@ import { ModalWrapper } from '../FlowCommons/ModalWrapper';
 import { CollateralRepayModalContent } from './CollateralRepayModalContent';
 import { RepayModalContent } from './RepayModalContent';
 import { RepayType, RepayTypeSelector } from './RepayTypeSelector';
-import { RepayModalContentBurra } from './RepayModalContentBurra';
+import { RepayModalContentBurraV2 } from './RepayModalContentBurraV2';
 
 export const RepayModal = () => {
   const { type, close, args, mainTxState } = useModalContext() as ModalContextType<{
@@ -46,19 +46,18 @@ export const RepayModal = () => {
   return (
     <BasicModal open={type === ModalType.Repay} setOpen={handleClose}>
       <ModalWrapper
-        title={<Trans>Repay</Trans>}
+        title={<Trans>Repay GHO</Trans>}
         underlyingAsset={args.underlyingAsset}
         requiredPermission={PERMISSION.BORROWER}
       >
         {(params) => {
-          debugger
           return (
             <>
               {collateralRepayPossible && !mainTxState.txHash && (
                 <RepayTypeSelector repayType={repayType} setRepayType={setRepayType} />
               )}
               {repayType === RepayType.BALANCE && (
-                <RepayModalContentBurra {...params} debtType={InterestRate.Stable} />
+                <RepayModalContentBurraV2 {...params} debtType={InterestRate.Stable} />
               )}
               {repayType === RepayType.COLLATERAL && (
                 <CollateralRepayModalContent {...params} debtType={args.currentRateMode} />

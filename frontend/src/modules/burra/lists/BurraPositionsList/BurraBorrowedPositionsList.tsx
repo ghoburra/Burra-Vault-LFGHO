@@ -29,9 +29,8 @@ import { DashboardEModeButton } from '../../DashboardEModeButton';
 import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { ListTopInfoItem } from '../ListTopInfoItem';
-import { BorrowedPositionsListItemWrapper } from './BurraPositionsListItemWrapper';
+import { BurraBorrowedPositionsListItemWrapper } from './BurraBorrowedPositionsListItemWrapper';
 import { useBurra } from 'src/hooks/burra/useBurra';
-
 
 const head = [
   {
@@ -39,7 +38,7 @@ const head = [
     sortKey: 'symbol',
   },
   {
-    title: <Trans key="Debt">Shares</Trans>,
+    title: <Trans key="Debt">Debt</Trans>,
     sortKey: 'variableBorrows',
   },
   {
@@ -71,7 +70,7 @@ export const BurraBorrowedPositionsList = () => {
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
   const showEModeButton = currentMarketData.v3 && Object.keys(eModes).length > 1;
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
-  const { userPositionData} = useBurra()
+  const {  userPositionData } = useBurra()
 
   let borrowPositions =
     user?.userReservesData.reduce((acc, userReserve) => {
@@ -161,14 +160,14 @@ export const BurraBorrowedPositionsList = () => {
   };
 
   if (loading)
-    return <ListLoader title={<Trans>Your Burra (BU) shares</Trans>} head={head.map((c) => c.title)} />;
+    return <ListLoader title={<Trans>Your BURRA (BU) Shares</Trans>} head={head.map((c) => c.title)} />;
 
   return (
     <ListWrapper
       tooltipOpen={tooltipOpen}
       titleComponent={
         <Typography component="div" variant="h3" sx={{ mr: 4 }}>
-          <Trans>Your Burra (BU) shares</Trans>
+          <Trans>Your BURRA (BU) Shares</Trans>
         </Typography>
       }
       localStorageName="borrowedAssetsDashboardTableCollapse"
@@ -182,22 +181,53 @@ export const BurraBorrowedPositionsList = () => {
         <>
           {!!sortedReserves.length && (
             <>
-              <ListTopInfoItem title={<Trans>Balance ($)</Trans>} value={userPositionData?.ghoOwnedInDollar || 0} />
-              <ListTopInfoItem title={<Trans>Balance (GHO)</Trans>} value={userPositionData?.ghoOwned || 0} />
+              <ListTopInfoItem title={<Trans>Balance</Trans>} value={user?.totalBorrowsUSD || 0} />
+              <ListTopInfoItem
+                title={<Trans>APY</Trans>}
+                value={user?.debtAPY || 0}
+                percent
+                tooltip={
+                  <TotalBorrowAPYTooltip
+                    setOpen={setTooltipOpen}
+                    event={{
+                      eventName: GENERAL.TOOL_TIP,
+                      eventParams: { tooltip: 'Total Borrowed APY' },
+                    }}
+                  />
+                }
+              />
+              <ListTopInfoItem
+                title={<Trans>Borrow power used</Trans>}
+                value={collateralUsagePercent || 0}
+                percent
+                tooltip={
+                  <BorrowPowerTooltip
+                    setOpen={setTooltipOpen}
+                    event={{
+                      eventName: GENERAL.TOOL_TIP,
+                      eventParams: { tooltip: 'Borrow power used' },
+                    }}
+                  />
+                }
+              />
             </>
           )}
         </>
       }
     >
-      {sortedReserves.length ? (
+      {userPositionData?.deposit ? (
         <>
           {!downToXSM && <RenderHeader />}
-          {sortedReserves.map((item) => (
+          {/* {sortedReserves.map((item) => (
             <BorrowedPositionsListItemWrapper
               item={item}
               key={item.underlyingAsset + item.borrowRateMode}
             />
-          ))}
+          ))} */}
+           <BurraBorrowedPositionsListItemWrapper
+              item={sortedReserves[0]}
+              key={0}
+            />
         </>
       ) : (
         <DashboardContentNoData text={<Trans>Nothing borrowed yet</Trans>} />

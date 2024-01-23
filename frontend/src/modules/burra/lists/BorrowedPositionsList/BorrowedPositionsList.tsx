@@ -30,6 +30,7 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { ListTopInfoItem } from '../ListTopInfoItem';
 import { BorrowedPositionsListItemWrapper } from './BorrowedPositionsListItemWrapper';
+import { useBurra } from 'src/hooks/burra/useBurra';
 
 const head = [
   {
@@ -69,6 +70,7 @@ export const BorrowedPositionsList = () => {
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
   const showEModeButton = currentMarketData.v3 && Object.keys(eModes).length > 1;
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
+  const {  userPositionData } = useBurra()
 
   let borrowPositions =
     user?.userReservesData.reduce((acc, userReserve) => {
@@ -213,15 +215,19 @@ export const BorrowedPositionsList = () => {
         </>
       }
     >
-      {sortedReserves.length ? (
+      {userPositionData?.deposit ? (
         <>
           {!downToXSM && <RenderHeader />}
-          {sortedReserves.map((item) => (
+          {/* {sortedReserves.map((item) => (
             <BorrowedPositionsListItemWrapper
               item={item}
               key={item.underlyingAsset + item.borrowRateMode}
             />
-          ))}
+          ))} */}
+           <BorrowedPositionsListItemWrapper
+              item={sortedReserves[0]}
+              key={0}
+            />
         </>
       ) : (
         <DashboardContentNoData text={<Trans>Nothing borrowed yet</Trans>} />

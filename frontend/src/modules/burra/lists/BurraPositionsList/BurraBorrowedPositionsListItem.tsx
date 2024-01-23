@@ -55,12 +55,12 @@ export const BurraBorrowedPositionsListItem = ({
 
   const hasDiscount = ghoUserQualifiesForDiscount();
 
-  const { isActive, isFrozen, isPaused, borrowingEnabled } = reserve;
-  const maxAmountUserCanMint = Number(getMaxGhoMintAmount(user, reserve));
-  const availableBorrows = Math.min(
-    maxAmountUserCanMint,
-    ghoReserveData.aaveFacilitatorRemainingCapacity
-  );
+  // const { isActive, isFrozen, isPaused, borrowingEnabled } = reserve;
+  // const maxAmountUserCanMint = Number(getMaxGhoMintAmount(user, reserve));
+  // const availableBorrows = Math.min(
+  //   maxAmountUserCanMint,
+  //   ghoReserveData.aaveFacilitatorRemainingCapacity
+  // );
 
   const props: GhoBorrowedPositionsListItemProps = {
     reserve,
@@ -72,24 +72,13 @@ export const BurraBorrowedPositionsListItem = ({
     borrowRateAfterDiscount,
     currentMarket,
     userDiscountTokenBalance: ghoUserData.userDiscountTokenBalance,
-    borrowDisabled:
-      !isActive ||
-      !borrowingEnabled ||
-      isFrozen ||
-      isPaused ||
-      availableBorrows <= 0 ||
-      ghoReserveData.aaveFacilitatorRemainingCapacity < 0.000001,
+    borrowDisabled:    false,
     showSwitchButton: isFeatureEnabled.debtSwitch(currentMarketData) || false,
-    disableSwitch: !isActive || isPaused,
-    disableRepay: !isActive || isPaused,
+    disableSwitch: false,
+    disableRepay: false,
     onRepayClick: () =>
       openListForSale(
-        reserve.underlyingAsset,
-        borrowRateMode,
-        isFrozen,
-        currentMarket,
-        reserve.name,
-        'dashboard'
+        "BU"
       ),
     onBorrowClick: () =>
       openBorrow(reserve.underlyingAsset, currentMarket, reserve.name, 'dashboard'),
@@ -140,7 +129,7 @@ const GhoBorrowedPositionsListItemDesktop = ({
   disableSwitch,
   disableRepay,
 }: GhoBorrowedPositionsListItemProps) => {
-  const { symbol, iconSymbol, name, isFrozen, underlyingAsset } = reserve;
+  // const { symbol, iconSymbol, name, isFrozen, underlyingAsset } = reserve;
   const {  userPositionData, vaultContract} = useBurra()
 
 
@@ -151,12 +140,12 @@ const GhoBorrowedPositionsListItemDesktop = ({
       name={"Burra (BU)"}
       detailsAddress={vaultContract?.address || ""}
       currentMarket={currentMarket}
-      frozen={isFrozen}
-      data-cy={`dashboardBorrowedListItem_${symbol.toUpperCase()}_${borrowRateMode}`}
+      frozen={false}
+      data-cy={`dashboardBorrowedListItem_GHO_${borrowRateMode}`}
       showBorrowCapTooltips
     >
       <ListValueColumn
-        symbol={symbol}
+        symbol={"BU"}
         value={userPositionData?.totalDebt}
         subValue={userPositionData?.debtInDollars}
       />
@@ -166,7 +155,7 @@ const GhoBorrowedPositionsListItemDesktop = ({
           value={userPositionData?.interestStrategy.rate} 
           data-cy={`apyType`}
           stkAaveBalance={userDiscountTokenBalance}
-          ghoRoute={ROUTES.reserveOverview(underlyingAsset, currentMarket) + '/#discount'}
+          ghoRoute={""}
           userQualifiesForDiscount={hasDiscount}
         />
       </ListColumn>

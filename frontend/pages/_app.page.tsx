@@ -27,6 +27,7 @@ import createEmotionCache from '../src/createEmotionCache';
 import { AppGlobalStyles } from '../src/layouts/AppGlobalStyles';
 import { LanguageProvider } from '../src/libs/LanguageProvider';
 import { ListBurraModal } from 'src/components/transactions/ListBurra/ListBurraModal';
+import { RepayGHOBurraVaultModal } from 'src/components/transactions/Repay/RepayGHOBurraVaultModal';
 
 const SwitchModal = dynamic(() =>
   import('src/components/transactions/Switch/SwitchModal').then((module) => module.SwitchModal)
@@ -161,6 +162,7 @@ export default function MyApp(props: MyAppProps) {
                               <TransactionEventHandler />
                               <SwitchModal />
                               <ListBurraModal />
+                              <RepayGHOBurraVaultModal />
                             </SharedDependenciesProvider>
                           </GasStationProvider>
                         </AppDataProvider>

@@ -12,8 +12,9 @@ export const useBurra = () => {
 
   const { provider } = useWeb3Context();
 
-  const GHO = "0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2"
-  const VAULT = "0x78A3022d16340412eCf82BAF5d5b6486CCc95869"
+  const GHO = "0x3308ff248A0Aa6EB7499A39C4c26ADF526825B0d"
+  const VAULT = "0xdEC90AA22d77af136588F54F44ec66492409D740"
+
   const WAD = 1000000000000000000
 
 
@@ -24,6 +25,7 @@ export const useBurra = () => {
   const [userPositionData, setUserPositionData] = useState<{ interestStrategy: any, deposit: any, burraOwned: any, ghoOwned: any, totalDebt: any, ghoOwnedInDollar: any, debtInDollars: any }>();
   const [bucketCap, setBucketCapacity] = useState<{ cap: number, level: number }>();
   const [currentRate, setCurrentRate] = useState<number>();
+  const [price, setCurrentPrice] = useState<number>();
   const [collateralData, setCollateralData] = useState<{ symbol: string, name: string, address: string, balance: string | number }>();
   const [error, setError] = useState("");
   const { currentAccount } = useWeb3Context();
@@ -162,8 +164,8 @@ export const useBurra = () => {
       if (vaultContract) {
         const capacity = await ghoContract?.getFacilitatorBucket(vaultContract.address)
         if (capacity) {
-          const cap = Number(capacity[0]) / 10000000000000000
-          const level = Number(capacity[1]) / 10000000000000000
+          const cap = Number(capacity[0]) / WAD
+          const level = Number(capacity[1]) / WAD
           setBucketCapacity({
             cap,
             level
@@ -185,7 +187,7 @@ export const useBurra = () => {
       const coll = getCollateralContract(DAI_ADDRESS)
       const symbol = await coll.symbol()
       const name = await coll.name()
-      const balance = (Number(await coll.balanceOf(currentAccount)) / 10000000000000000).toString()
+      const balance = (Number(await coll.balanceOf(currentAccount)) / WAD).toString()
 
       setCollateralData({
         symbol, name, address: DAI_ADDRESS, balance
@@ -203,22 +205,22 @@ export const useBurra = () => {
       let evs;
       if (filters)
         evs = await vaultContract?.queryFilter(filters, 5121116)
-      const grouped = _.groupBy(evs, "args.owner")
+      const grouped = _.groupBy(evs, "args.owner");
 
-      const listedPerUser = Object.keys(grouped).map((k: string) => {
+      const listedPerUser = Object.keys(grouped).map((k: any) => {
         return {
           owner: k,
-          amount: grouped[k].reduce((prv: any, cur: any) => Number(cur.args.amount) / WAD, 0)
-
+          amount: _.sumBy(Object.values(grouped[k]).map((x: any) => Number(x.args.amount)/WAD
+          ))
         }
       })
-      console.log("listedPerUser", listedPerUser)
+
       setListedBurraPerUser(listedPerUser)
 
     }
 
     // if (vaultContract)
-      getAllListedBurra()
+    getAllListedBurra()
 
 
   }, [vaultContract, currentAccount])
@@ -236,13 +238,25 @@ export const useBurra = () => {
 
   }, [vaultContract, currentAccount])
 
+  useEffect(() => {
+    const getCurrentPrice = async () => {
+      const price = Number(await vaultContract?.getGHOMarketPrice()) / WAD
+      setCurrentPrice(price)
+    }
+
+    if (vaultContract)
+      getCurrentPrice()
+
+
+  }, [vaultContract, currentAccount])
 
 
 
 
 
 
-  return { buildApproveCollateralTx, buildBorrowGHOTx, buildRepayTx, buildListBurraTx, listedBurraPerUser, userPositionData, bucketCap, collateralData, ghoContract, vaultContract, currentRate, error };
+
+  return { buildApproveCollateralTx, buildBorrowGHOTx, buildRepayTx, buildListBurraTx, listedBurraPerUser, userPositionData, bucketCap, collateralData, ghoContract, vaultContract, currentRate, error, VAULT, GHO, price, WAD };
 
 
 };

@@ -7,11 +7,10 @@ import { RepayType } from './RepayTypeSelector';
 import { ModalWrapper } from '../FlowCommons/ModalWrapper';
 import { Trans } from '@lingui/macro';
 import { ModalWrapperIndie } from '../FlowCommons/ModalWrapperIndie';
-import { RepayModalContent } from './RepayModalContent';
+import { RepayModalContentBurraV2 } from './RepayModalContentBurraV2';
 import { AssetInputBurra } from '../AssetInputBurra';
-import { ListBurraModalContentV2 } from './ListBurraModalContentV2';
 
-export const ListBurraModal = () => {
+export const RepayGHOBurraVaultModal = () => {
   const { type, close, args, mainTxState } = useModalContext() as ModalContextType<{
     underlyingAsset: string;
     currentRateMode: InterestRate;
@@ -26,16 +25,16 @@ export const ListBurraModal = () => {
     close();
   };
   return (
-    <BasicModal open={type === ModalType.ListBurraForSales} setOpen={handleClose}>
+    <BasicModal open={type === ModalType.RepayGHOBurraVault} setOpen={handleClose}>
       <></>
       <ModalWrapperIndie
-        title={<Trans>List Burra (BU) For Sale</Trans>}
+        title={<Trans>Repay GHO</Trans>}
         underlyingAsset={args.underlyingAsset}
         requiredPermission={PERMISSION.BORROWER}
       >
         {(params) => {
           return (
-            <ListBurraModalContentV2 {...params} debtType={InterestRate.Stable} />
+            <RepayModalContentBurraV2 {...params} debtType={InterestRate.Stable} />
           );
         }}
       </ModalWrapperIndie>
