@@ -89,7 +89,7 @@ export interface ModalContextType<T extends ModalArgsType> {
     // currentRateMode: InterestRate,
     // isFrozen: boolean,
     // currentMarket: string,
-    name: string,
+    name: string
     // funnel: string
   ) => void;
   openListForSale: (
@@ -97,7 +97,7 @@ export interface ModalContextType<T extends ModalArgsType> {
     // currentRateMode: InterestRate,
     // isFrozen: boolean,
     // currentMarket: string,
-    name: string,
+    name: string
     // funnel: string
   ) => void;
   openCollateralChange: (

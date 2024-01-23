@@ -9,6 +9,7 @@ import { ListItem } from 'src/components/lists/ListItem';
 import { Row } from 'src/components/primitives/Row';
 import { TokenIcon } from 'src/components/primitives/TokenIcon';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { useRootStore } from 'src/store/root';
@@ -23,7 +24,6 @@ import { ListMobileItemWrapper } from '../ListMobileItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
 import { ListValueRow } from '../ListValueRow';
 import { GhoBorrowAssetsItem } from './types';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const GhoBorrowAssetsListItem = ({
   symbol,
@@ -39,12 +39,12 @@ export const GhoBorrowAssetsListItem = ({
   const { ghoReserveData, ghoUserData, ghoLoadingData } = useAppDataContext();
   const { ghoUserDataFetched } = useRootStore();
   const theme = useTheme();
-  const {bucketCap, currentRate} = useBurra();
+  const { bucketCap, currentRate } = useBurra();
   const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
 
-
   const maxAmountUserCanMint = Number(getMaxGhoMintAmount(user, reserve));
-  const availableBorrows =  bucketCap?.cap && bucketCap?.level ? bucketCap?.cap -  bucketCap?.level : 0
+  const availableBorrows =
+    bucketCap?.cap && bucketCap?.level ? bucketCap?.cap - bucketCap?.level : 0;
   // const availableBorrows = Math.min(
   //   maxAmountUserCanMint,
   //   ghoReserveData.aaveFacilitatorRemainingCapacity
@@ -67,11 +67,11 @@ export const GhoBorrowAssetsListItem = ({
   );
   const ghoApyRange: [number, number] | undefined = ghoUserDataFetched
     ? [
-      ghoUserData.userGhoAvailableToBorrowAtDiscount === 0
-        ? ghoReserveData.ghoBorrowAPYWithMaxDiscount
-        : userCurrentBorrowApy,
-      userBorrowApyAfterNewBorrow,
-    ]
+        ghoUserData.userGhoAvailableToBorrowAtDiscount === 0
+          ? ghoReserveData.ghoBorrowAPYWithMaxDiscount
+          : userCurrentBorrowApy,
+        userBorrowApyAfterNewBorrow,
+      ]
     : undefined;
 
   const props: GhoBorrowAssetsListItemProps = {
@@ -126,7 +126,7 @@ const GhoBorrowAssetsListItemDesktop = ({
   userBorrowApyAfterNewBorrow,
   onBorrowClick,
 }: GhoBorrowAssetsListItemProps) => {
-  const { currentRate} = useBurra()
+  const { currentRate } = useBurra();
   return (
     <ListItem
       sx={{ borderTop: '1px solid', borderBottom: '1px solid', borderColor: 'divider', mb: 2 }}
@@ -176,8 +176,8 @@ const GhoBorrowAssetsListItemDesktop = ({
         <GhoIncentivesCard
           withTokenIcon={true}
           useApyRange
-          rangeValues={[currentRate|| 3.03, currentRate || 3.03 ]}
-          value={currentRate||0}
+          rangeValues={[currentRate || 3.03, currentRate || 3.03]}
+          value={currentRate || 0}
           data-cy={`apyType`}
           stkAaveBalance={userDiscountTokenBalance}
           ghoRoute={ROUTES.reserveOverview(underlyingAsset, currentMarket) + '/#discount'}

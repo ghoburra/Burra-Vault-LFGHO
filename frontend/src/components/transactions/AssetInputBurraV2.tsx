@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import React, { ReactNode } from 'react';
 import NumberFormat, { NumberFormatProps } from 'react-number-format';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { TrackEventProps } from 'src/store/analyticsSlice';
 import { useRootStore } from 'src/store/root';
 
@@ -24,7 +25,6 @@ import { CapType } from '../caps/helper';
 import { AvailableTooltip } from '../infoTooltips/AvailableTooltip';
 import { FormattedNumber } from '../primitives/FormattedNumber';
 import { TokenIcon } from '../primitives/TokenIcon';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -115,7 +115,7 @@ export const AssetInputBurraV2 = <T extends Asset = Asset>({
     onSelect && onSelect(newAsset);
     onChange && onChange('');
   };
-  const {userPositionData}=useBurra()
+  const { userPositionData } = useBurra();
 
   const asset =
     assets.length === 1

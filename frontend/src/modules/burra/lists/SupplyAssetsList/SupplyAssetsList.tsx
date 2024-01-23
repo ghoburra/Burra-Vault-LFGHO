@@ -9,6 +9,7 @@ import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
 import { Warning } from 'src/components/primitives/Warning';
 import { MarketWarning } from 'src/components/transactions/Warnings/MarketWarning';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { AssetCapsProvider } from 'src/hooks/useAssetCaps';
 import { useRootStore } from 'src/store/root';
 import { fetchIconSymbolAndName } from 'src/ui-config/reservePatches';
@@ -29,10 +30,9 @@ import { DashboardListTopPanel } from '../../DashboardListTopPanel';
 import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { SupplyAssetsListItem } from './SupplyAssetsListItem';
+import { SupplyAssetsListItemModified } from './SupplyAssetsListItemModified';
 import { SupplyAssetsListMobileItem } from './SupplyAssetsListMobileItem';
 import { WalletEmptyInfo } from './WalletEmptyInfo';
-import { useBurra } from 'src/hooks/burra/useBurra';
-import { SupplyAssetsListItemModified } from './SupplyAssetsListItemModified';
 
 const head = [
   { title: <Trans key="assets">Assets</Trans>, sortKey: 'symbol' },
@@ -62,7 +62,7 @@ export const SupplyAssetsList = () => {
 
   const [sortName, setSortName] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
-  const { listedBurraPerUser } = useBurra()
+  const { listedBurraPerUser } = useBurra();
   const { bridge, isTestnet, baseAssetSymbol, name: networkName } = currentNetworkConfig;
 
   const localStorageName = 'showSupplyZeroAssets';
@@ -99,10 +99,10 @@ export const SupplyAssetsList = () => {
 
       const usageAsCollateralEnabledOnUser = !user?.isInIsolationMode
         ? reserve.reserveLiquidationThreshold !== '0' &&
-        (!isIsolated || (isIsolated && !hasDifferentCollateral))
+          (!isIsolated || (isIsolated && !hasDifferentCollateral))
         : !isIsolated
-          ? false
-          : !hasDifferentCollateral;
+        ? false
+        : !hasDifferentCollateral;
 
       if (reserve.isWrappedBaseAsset) {
         let baseAvailableToDeposit = valueToBigNumber(
@@ -177,8 +177,8 @@ export const SupplyAssetsList = () => {
   const supplyReserves: unknown = isShowZeroAssets
     ? sortedSupplyReserves
     : filteredSupplyReserves.length >= 1
-      ? filteredSupplyReserves
-      : sortedSupplyReserves;
+    ? filteredSupplyReserves
+    : sortedSupplyReserves;
 
   // Transform to the DashboardReserve schema so the sort utils can work with it
   const preSortedReserves = supplyReserves as DashboardReserve[];
@@ -216,7 +216,6 @@ export const SupplyAssetsList = () => {
     );
   };
 
-
   const supplyDisabled = !tokensToSupply.length;
   return (
     <ListWrapper
@@ -228,7 +227,8 @@ export const SupplyAssetsList = () => {
       localStorageName="supplyAssetsDashboardTableCollapse"
       withTopMargin
       noData={false}
-      subChildrenComponent={<></>
+      subChildrenComponent={
+        <></>
         // <>
         //   <Box sx={{ px: 6 }}>
         //     {supplyDisabled && currentNetworkConfig.name === 'Harmony' ? (
@@ -290,11 +290,10 @@ export const SupplyAssetsList = () => {
             <SupplyAssetsListItemModified {...item} key={1} />
         ))} */}
 
-        {listedBurraPerUser?.map((el:any,index:any) =>{
-            <SupplyAssetsListItemModified element={el} key={index} />
+        {listedBurraPerUser?.map((el: any, index: any) => {
+          <SupplyAssetsListItemModified element={el} key={index} />;
         })}
       </>
     </ListWrapper>
   );
-
 };

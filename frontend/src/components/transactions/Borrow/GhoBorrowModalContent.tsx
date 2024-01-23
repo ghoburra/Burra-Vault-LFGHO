@@ -21,6 +21,7 @@ import { Row } from 'src/components/primitives/Row';
 import { StyledTxModalToggleButton } from 'src/components/StyledToggleButton';
 import { StyledTxModalToggleGroup } from 'src/components/StyledToggleButtonGroup';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useAssetCaps } from 'src/hooks/useAssetCaps';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
@@ -39,7 +40,6 @@ import { BorrowActions } from './BorrowActions';
 import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { GhoBorrowSuccessView } from './GhoBorrowSuccessView';
 import { ParameterChangewarning } from './ParameterChangewarning';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -132,7 +132,7 @@ export const GhoBorrowModalContent = ({
   const discountAvailable = ghoUserQualifiesForDiscount(amount);
 
   // amount calculations
-  let maxAmountToBorrow =  bucketCap?.level.toString() || "1000"
+  const maxAmountToBorrow = bucketCap?.level.toString() || '1000';
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected

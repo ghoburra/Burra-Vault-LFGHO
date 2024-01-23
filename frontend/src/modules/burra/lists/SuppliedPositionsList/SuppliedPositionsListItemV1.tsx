@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro';
 import { Button } from '@mui/material';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useAssetCaps } from 'src/hooks/useAssetCaps';
 import { useModalContext } from 'src/hooks/useModal';
 import { useRootStore } from 'src/store/root';
@@ -15,7 +16,6 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListItemUsedAsCollateral } from '../ListItemUsedAsCollateral';
 import { ListItemWrapper } from '../ListItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const SuppliedPositionsListItem = ({
   reserve,
@@ -31,7 +31,7 @@ export const SuppliedPositionsListItem = ({
   const { debtCeiling } = useAssetCaps();
   const isSwapButton = isFeatureEnabled.liquiditySwap(currentMarketData);
   const trackEvent = useRootStore((store) => store.trackEvent);
-  const {userPositionData, collateralData} = useBurra()
+  const { userPositionData, collateralData } = useBurra();
 
   const canBeEnabledAsCollateral =
     !debtCeiling.isMaxed &&
@@ -46,10 +46,10 @@ export const SuppliedPositionsListItem = ({
 
   return (
     <ListItemWrapper
-      symbol={collateralData?.symbol|| "DAI"}
+      symbol={collateralData?.symbol || 'DAI'}
       iconSymbol={reserve.iconSymbol} // PUT HERE DAI ICON SOMEHOW
-      name={collateralData?.name || "DAI"}
-      detailsAddress={collateralData?.address || ""}
+      name={collateralData?.name || 'DAI'}
+      detailsAddress={collateralData?.address || ''}
       currentMarket={currentMarket}
       frozen={reserve.isFrozen}
       paused={isPaused}

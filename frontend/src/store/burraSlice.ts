@@ -7,16 +7,14 @@ import {
   ReservesIncentiveDataHumanized,
   UserReserveDataHumanized,
 } from '@aave/contract-helpers';
-import {
-  LPBorrowParamsType,
-} from '@aave/contract-helpers/dist/esm/lendingPool-contract/lendingPoolTypes';
+import { LPBorrowParamsType } from '@aave/contract-helpers/dist/esm/lendingPool-contract/lendingPoolTypes';
 import { Contract, ethers } from 'ethers';
 import { StateCreator } from 'zustand';
 
-import { RootStore } from './root';
+import { erc20Abi } from './abis/erc20';
 import { ghoTokenAbi } from './abis/ghoToken';
 import { vaultAbi } from './abis/vault';
-import { erc20Abi } from './abis/erc20';
+import { RootStore } from './root';
 
 // TODO: what is the better name for this type?
 export type PoolReserve = {
@@ -58,48 +56,37 @@ export const createBurraSlice: StateCreator<
   [],
   BurraSlice
 > = (set, get) => {
-
   return {
     getGHOContract() {
-
-      const provdr = get().jsonRpcProvider()
-      const GHO_TOKEN_ADDRESS = "0xb16bd090F562eF9A93a47F2a52A649cCbf70c39A"
+      const provdr = get().jsonRpcProvider();
+      const GHO_TOKEN_ADDRESS = '0xb16bd090F562eF9A93a47F2a52A649cCbf70c39A';
 
       const contract = new ethers.Contract(GHO_TOKEN_ADDRESS, ghoTokenAbi, provdr);
 
-      return contract
-
+      return contract;
     },
     getVaultContract() {
-
-      const provdr = get().jsonRpcProvider()
-      const VAULT_ADDRESS = "0x7C2590FaCDcdeCF63d759CA321F0F95C6a53b4Bf"
+      const provdr = get().jsonRpcProvider();
+      const VAULT_ADDRESS = '0x7C2590FaCDcdeCF63d759CA321F0F95C6a53b4Bf';
 
       const contract = new ethers.Contract(VAULT_ADDRESS, vaultAbi, provdr);
 
-      return contract
-
+      return contract;
     },
     getCollateralContract(collateralAddress: string) {
-
-      const provdr = get().jsonRpcProvider()
+      const provdr = get().jsonRpcProvider();
 
       const contract = new ethers.Contract(collateralAddress, erc20Abi, provdr);
 
-      return contract
-
+      return contract;
     },
-     getSigner: () => {
+    getSigner: () => {
       return get().account;
     },
     burraBorrow: () => {
       // const ghoToken = get().getBurraGhoToken()
 
-      console.log("to be implemented")
-
+      console.log('to be implemented');
     },
-
-
-
   };
 };

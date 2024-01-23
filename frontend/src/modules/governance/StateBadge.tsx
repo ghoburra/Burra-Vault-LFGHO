@@ -19,7 +19,7 @@ const Badge = styled('span')<StateBadgeProps>(({ theme, state }) => {
   };
   const color = COLOR_MAP[state] || '#000';
   return experimental_sx({
-    ...theme.typography.subheader2,
+    ...theme.typography?.subtitle2,
     color,
     border: '1px solid',
     borderColor: alpha(color, 0.5),

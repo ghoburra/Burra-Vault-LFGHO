@@ -14,12 +14,14 @@ import Typography from '@mui/material/Typography';
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { useRootStore } from 'src/store/root';
 import { getNetworkConfig } from 'src/utils/marketsAndNetworksConfig';
 
 import { Asset, AssetInput } from '../AssetInput';
+import { AssetInputBurraV2 } from '../AssetInputBurraV2';
 import { GasEstimationError } from '../FlowCommons/GasEstimationError';
 import { TxSuccessView } from '../FlowCommons/Success';
 import {
@@ -27,23 +29,22 @@ import {
   DetailsNumberLineWithSub,
   TxModalDetails,
 } from '../FlowCommons/TxModalDetails';
-import { useBurra } from 'src/hooks/burra/useBurra';
-import { AssetInputBurraV2 } from '../AssetInputBurraV2';
 import { ListBurraActions } from './ListBurraActions';
 
 interface RepayAsset extends Asset {
   balance: string;
 }
 
-export const ListBurraModalContentV2 = ({
-  // poolReserve,
-  // userReserve,
-  // symbol: modalSymbol,
-  // tokenBalance,
-  // nativeBalance,
-  // isWrongNetwork,
-  // debtType,
-}: { debtType: InterestRate }) => {
+export const ListBurraModalContentV2 = ({}: // poolReserve,
+// userReserve,
+// symbol: modalSymbol,
+// tokenBalance,
+// nativeBalance,
+// isWrongNetwork,
+// debtType,
+{
+  debtType: InterestRate;
+}) => {
   const { gasLimit, mainTxState: repayTxState, txError } = useModalContext();
   const { marketReferencePriceInUsd, user } = useAppDataContext();
   const { currentChainId, currentMarketData, currentMarket } = useProtocolDataContext();
@@ -64,7 +65,7 @@ export const ListBurraModalContentV2 = ({
   const [repayMax, setRepayMax] = useState('');
   const [_amount, setAmount] = useState('');
   const amountRef = useRef<string>();
-  const { userPositionData, price} = useBurra()
+  const { userPositionData, price } = useBurra();
 
   const networkConfig = getNetworkConfig(currentChainId);
 
@@ -72,7 +73,7 @@ export const ListBurraModalContentV2 = ({
 
   // const repayWithATokens = tokenToRepayWith.address === poolReserve.aTokenAddress;
 
-  const debt = userPositionData?.totalDebt
+  const debt = userPositionData?.totalDebt;
 
   // const safeAmountToRepayAll = valueToBigNumber(debt)
   // .multipliedBy('1.0025')
@@ -187,9 +188,10 @@ export const ListBurraModalContentV2 = ({
 
   // health factor calculations
   // we use usd values instead of MarketreferenceCurrency so it has same precision
-  let newHF = user?.healthFactor;
+  const newHF = user?.healthFactor;
   if (amount) {
-    let collateralBalanceMarketReferenceCurrency: BigNumberValue = user?.totalCollateralUSD || '0';
+    const collateralBalanceMarketReferenceCurrency: BigNumberValue =
+      user?.totalCollateralUSD || '0';
     // if (repayWithATokens && usageAsCollateralEnabledOnUser) {
     //   collateralBalanceMarketReferenceCurrency = valueToBigNumber(
     //     user?.totalCollateralUSD || '0'
@@ -214,7 +216,7 @@ export const ListBurraModalContentV2 = ({
   }
 
   // calculating input usd value
-  const usdValue = valueToBigNumber(amount)
+  const usdValue = valueToBigNumber(amount);
   // const usdValue = valueToBigNumber(amount).multipliedBy(reserve.priceInUSD);
 
   if (repayTxState.success)
@@ -222,7 +224,7 @@ export const ListBurraModalContentV2 = ({
       <TxSuccessView
         action={<Trans>listed</Trans>}
         amount={amountRef.current}
-        symbol={"BURRA (BU)"}
+        symbol={'BURRA (BU)'}
       />
     );
 
@@ -230,31 +232,31 @@ export const ListBurraModalContentV2 = ({
     <>
       <AssetInputBurraV2
         value={amount}
-        inputTitle={"Amount"}
-
+        inputTitle={'Amount'}
         onChange={handleChange}
-        usdValue={price ? ((Number(amount) * price).toString()) : "100"}
-        symbol={"GHO"}
-        assets={[{
-          symbol: "GHO"
-        }]}
+        usdValue={price ? (Number(amount) * price).toString() : '100'}
+        symbol={'GHO'}
+        assets={[
+          {
+            symbol: 'GHO',
+          },
+        ]}
         // onSelect={setTokenToRepayWith}
         isMaxSelected={isMaxSelected}
         // maxValue={maxAmountToRepay.toString(10)}
         balanceText={<Trans>Wallet balance</Trans>}
       />
 
-
-       {txError && <GasEstimationError txError={txError} />}
+      {txError && <GasEstimationError txError={txError} />}
 
       <ListBurraActions
-        maxApproveNeeded={"1000000000000000000"}
-        amountToRepay={ amount}
+        maxApproveNeeded={'1000000000000000000'}
+        amountToRepay={amount}
         isWrongNetwork={false}
-        symbol={"GHO"}
+        symbol={'GHO'}
       />
     </>
   );
 
-  return <>OK</>
+  return <>OK</>;
 };

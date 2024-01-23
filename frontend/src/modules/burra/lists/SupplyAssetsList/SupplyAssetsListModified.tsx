@@ -4,16 +4,14 @@ import { useState } from 'react';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
+import { Row } from 'src/components/primitives/Row';
+import { useBurra } from 'src/hooks/burra/useBurra';
+import { ListValueRow } from 'src/modules/dashboard/lists/ListValueRow';
 
 import { ListWrapper } from '../../../../components/lists/ListWrapper';
-import {
-  DASHBOARD_LIST_COLUMN_WIDTHS,
-} from '../../../../utils/dashboardSortUtils';
+import { DASHBOARD_LIST_COLUMN_WIDTHS } from '../../../../utils/dashboardSortUtils';
 import { ListButtonsColumn } from '../ListButtonsColumn';
-import { useBurra } from 'src/hooks/burra/useBurra';
 import { SupplyAssetsListItemModified } from './SupplyAssetsListItemModified';
-import { Row } from 'src/components/primitives/Row';
-import { ListValueRow } from 'src/modules/dashboard/lists/ListValueRow';
 
 const head = [
   { title: <Trans key="assets">Owner</Trans>, sortKey: 'symbol' },
@@ -23,16 +21,9 @@ const head = [
 ];
 
 export const SupplyAssetsListModified = () => {
-
   const [sortName, setSortName] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
-  const { listedBurraPerUser } = useBurra()
-
-
-
-
-
-
+  const { listedBurraPerUser } = useBurra();
 
   return (
     <ListWrapper
@@ -44,15 +35,13 @@ export const SupplyAssetsListModified = () => {
       localStorageName="supplyAssetsDashboardTableCollapse"
       withTopMargin
       noData={false}
-      subChildrenComponent={<></>
-      }
+      subChildrenComponent={<></>}
     >
       <>
-
-        {listedBurraPerUser?.map((el: any, index: any) => <SupplyAssetsListItemModified element={el} key={index} />
-        )}
+        {listedBurraPerUser?.map((el: any, index: any) => (
+          <SupplyAssetsListItemModified element={el} key={index} />
+        ))}
       </>
     </ListWrapper>
   );
-
 };

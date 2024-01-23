@@ -7,6 +7,7 @@ import { GhoIncentivesCard } from 'src/components/incentives/GhoIncentivesCard';
 import { FixedAPYTooltipText } from 'src/components/infoTooltips/FixedAPYTooltip';
 import { ROUTES } from 'src/components/primitives/Link';
 import { Row } from 'src/components/primitives/Row';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { useRootStore } from 'src/store/root';
@@ -26,13 +27,12 @@ import { ListItemWrapper } from '../ListItemWrapper';
 import { ListMobileItemWrapper } from '../ListMobileItemWrapper';
 import { ListValueColumn } from '../ListValueColumn';
 import { ListValueRow } from '../ListValueRow';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export const BurraBorrowedPositionsListItem = ({
   reserve,
   borrowRateMode,
 }: ComputedUserReserveData & { borrowRateMode: InterestRate }) => {
-  const { openBorrow, openRepay, openListForSale,openDebtSwitch } = useModalContext();
+  const { openBorrow, openRepay, openListForSale, openDebtSwitch } = useModalContext();
   const { currentMarket, currentMarketData } = useProtocolDataContext();
   const { ghoLoadingData, ghoReserveData, ghoUserData, user } = useAppDataContext();
   const [ghoUserDataFetched, ghoUserQualifiesForDiscount] = useRootStore((store) => [
@@ -72,14 +72,11 @@ export const BurraBorrowedPositionsListItem = ({
     borrowRateAfterDiscount,
     currentMarket,
     userDiscountTokenBalance: ghoUserData.userDiscountTokenBalance,
-    borrowDisabled:    false,
+    borrowDisabled: false,
     showSwitchButton: isFeatureEnabled.debtSwitch(currentMarketData) || false,
     disableSwitch: false,
     disableRepay: false,
-    onRepayClick: () =>
-      openListForSale(
-        "BU"
-      ),
+    onRepayClick: () => openListForSale('BU'),
     onBorrowClick: () =>
       openBorrow(reserve.underlyingAsset, currentMarket, reserve.name, 'dashboard'),
     onSwitchClick: () => openDebtSwitch(reserve.underlyingAsset, borrowRateMode),
@@ -130,37 +127,35 @@ const GhoBorrowedPositionsListItemDesktop = ({
   disableRepay,
 }: GhoBorrowedPositionsListItemProps) => {
   // const { symbol, iconSymbol, name, isFrozen, underlyingAsset } = reserve;
-  const {  userPositionData, vaultContract} = useBurra()
-
+  const { userPositionData, vaultContract } = useBurra();
 
   return (
     <ListItemWrapper
-      symbol={"BU"}
-      iconSymbol={"burrino"}
-      name={"Burra (BU)"}
-      detailsAddress={vaultContract?.address || ""}
+      symbol={'BU'}
+      iconSymbol={'burrino'}
+      name={'Burra (BU)'}
+      detailsAddress={vaultContract?.address || ''}
       currentMarket={currentMarket}
       frozen={false}
       data-cy={`dashboardBorrowedListItem_GHO_${borrowRateMode}`}
       showBorrowCapTooltips
     >
       <ListValueColumn
-        symbol={"BU"}
+        symbol={'BU'}
         value={userPositionData?.totalDebt}
         subValue={userPositionData?.debtInDollars}
       />
       <ListColumn>
         <GhoIncentivesCard
           withTokenIcon={hasDiscount}
-          value={userPositionData?.interestStrategy.rate} 
+          value={userPositionData?.interestStrategy.rate}
           data-cy={`apyType`}
           stkAaveBalance={userDiscountTokenBalance}
-          ghoRoute={""}
+          ghoRoute={''}
           userQualifiesForDiscount={hasDiscount}
         />
       </ListColumn>
       <ListColumn>
-      
         <ContentWithTooltip tooltipContent={FixedAPYTooltipText} offset={[0, -4]} withoutHover>
           <Button
             variant="outlined"

@@ -9,9 +9,9 @@ import { AUTH } from 'src/utils/mixPanelEvents';
 
 import { BorrowAssetsList } from './lists/BorrowAssetsList/BorrowAssetsList';
 import { BorrowedPositionsList } from './lists/BorrowedPositionsList/BorrowedPositionsList';
+import { BurraBorrowedPositionsList } from './lists/BurraPositionsList/BurraBorrowedPositionsList';
 import { SuppliedPositionsList } from './lists/SuppliedPositionsList/SuppliedPositionsList';
 import { SupplyAssetsList } from './lists/SupplyAssetsList/SupplyAssetsList';
-import { BurraBorrowedPositionsList } from './lists/BurraPositionsList/BurraBorrowedPositionsList';
 import { SupplyAssetsListModified } from './lists/SupplyAssetsList/SupplyAssetsListModified';
 
 interface BurraContentWrapperProps {

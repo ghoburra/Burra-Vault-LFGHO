@@ -5,6 +5,7 @@ import { Fragment, useState } from 'react';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
 import { ListHeaderWrapper } from 'src/components/lists/ListHeaderWrapper';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { AssetCapsProvider } from 'src/hooks/useAssetCaps';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
 import { fetchIconSymbolAndName } from 'src/ui-config/reservePatches';
@@ -26,7 +27,6 @@ import { ListButtonsColumn } from '../ListButtonsColumn';
 import { ListLoader } from '../ListLoader';
 import { SuppliedPositionsListItem } from './SuppliedPositionsListItem';
 import { SuppliedPositionsListMobileItem } from './SuppliedPositionsListMobileItem';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 const head = [
   {
@@ -66,7 +66,7 @@ export const SuppliedPositionsList = () => {
   const [sortName, setSortName] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
-  const {userPositionData,collateralData} = useBurra()
+  const { userPositionData, collateralData } = useBurra();
 
   const suppliedPositions =
     user?.userReservesData
@@ -121,7 +121,12 @@ export const SuppliedPositionsList = () => {
   };
 
   if (loading)
-    return <ListLoader title={<Trans>Asset You Deposited As Collateral</Trans>} head={head.map((col) => col.title)} />;
+    return (
+      <ListLoader
+        title={<Trans>Asset You Deposited As Collateral</Trans>}
+        head={head.map((col) => col.title)}
+      />
+    );
 
   return (
     <ListWrapper

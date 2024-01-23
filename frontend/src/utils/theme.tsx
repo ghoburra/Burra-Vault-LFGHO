@@ -20,7 +20,7 @@ const {
 const FONT = 'Inter, Arial';
 
 declare module '@mui/material/styles/createPalette' {
-  interface PaletteColor extends ColorPartial {}
+  type PaletteColor2 = ColorPartial;
 
   interface TypeText {
     muted: string;
@@ -74,10 +74,10 @@ interface TypographyCustomVariants {
 }
 
 declare module '@mui/material/styles' {
-  interface TypographyVariants extends TypographyCustomVariants {}
+  type TypographyVariants = TypographyCustomVariants;
 
   // allow configuration using `createTheme`
-  interface TypographyVariantsOptions extends TypographyCustomVariants {}
+  type TypographyVariantsOptions = TypographyCustomVariants;
 
   interface BreakpointOverrides {
     xsm: true;
@@ -417,15 +417,15 @@ export function getThemedComponents(theme: Theme) {
             borderRadius: '4px',
           },
           sizeLarge: {
-            ...theme.typography.buttonL,
+            ...theme.typography.button,
             padding: '10px 24px',
           },
           sizeMedium: {
-            ...theme.typography.buttonM,
+            ...theme.typography.button,
             padding: '6px 12px',
           },
           sizeSmall: {
-            ...theme.typography.buttonS,
+            ...theme.typography.button,
             padding: '0 6px',
           },
         },
@@ -533,7 +533,7 @@ export function getThemedComponents(theme: Theme) {
       MuiListItemText: {
         styleOverrides: {
           root: {
-            ...theme.typography.subheader1,
+            ...theme.typography.subtitle1,
           },
         },
       },
@@ -742,52 +742,52 @@ export function getThemedComponents(theme: Theme) {
           {
             props: { severity: 'error' },
             style: {
-              color: theme.palette.error['100'],
-              background: theme.palette.error['200'],
+              color: theme.palette.error.light,
+              background: theme.palette.error.light,
               a: {
-                color: theme.palette.error['100'],
+                color: theme.palette.error.light,
               },
               '.MuiButton-text': {
-                color: theme.palette.error['100'],
+                color: theme.palette.error.light,
               },
             },
           },
           {
             props: { severity: 'info' },
             style: {
-              color: theme.palette.info['100'],
-              background: theme.palette.info['200'],
+              color: theme.palette.info.light,
+              background: theme.palette.info.light,
               a: {
-                color: theme.palette.info['100'],
+                color: theme.palette.info.light,
               },
               '.MuiButton-text': {
-                color: theme.palette.info['100'],
+                color: theme.palette.info.light,
               },
             },
           },
           {
             props: { severity: 'success' },
             style: {
-              color: theme.palette.success['100'],
-              background: theme.palette.success['200'],
+              color: theme.palette.success.light,
+              background: theme.palette.success.light,
               a: {
-                color: theme.palette.success['100'],
+                color: theme.palette.success.light,
               },
               '.MuiButton-text': {
-                color: theme.palette.success['100'],
+                color: theme.palette.success.light,
               },
             },
           },
           {
             props: { severity: 'warning' },
             style: {
-              color: theme.palette.warning['100'],
-              background: theme.palette.warning['200'],
+              color: theme.palette.warning.light,
+              background: theme.palette.warning.light,
               a: {
-                color: theme.palette.warning['100'],
+                color: theme.palette.warning.light,
               },
               '.MuiButton-text': {
-                color: theme.palette.warning['100'],
+                color: theme.palette.warning.light,
               },
             },
           },
@@ -826,7 +826,7 @@ export function getThemedComponents(theme: Theme) {
         styleOverrides: {
           outlined: {
             backgroundColor: theme.palette.background.surface,
-            ...theme.typography.buttonM,
+            ...theme.typography.button,
             padding: '6px 12px',
             color: theme.palette.primary.light,
           },

@@ -1,43 +1,38 @@
-import { Button, ListItem } from "@mui/material";
-import { ListColumn } from "src/components/lists/ListColumn";
-import { Row } from "src/components/primitives/Row";
-import { ListItemWrapper } from "../ListItemWrapper";
+import { Button, ListItem } from '@mui/material';
+import { ListColumn } from 'src/components/lists/ListColumn';
+import { Row } from 'src/components/primitives/Row';
 
+import { ListItemWrapper } from '../ListItemWrapper';
 
 export const SupplyAssetsListItemModified = (props: {
   element: {
-    owner: string,
-    amount: number
-  }
+    owner: string;
+    amount: number;
+  };
 }) => {
-
   return (
     <ListItem>
       <ListColumn align="left">
         <b>Address:</b>
-        <br></br>
+        <br />
         {`${props.element.owner.substring(0, 4)}...${props.element.owner.substring(38)}`}
       </ListColumn>
       <ListColumn align="left">
         <b>APY:</b>
-        <br></br>
+        <br />
         1.15%
-      </ListColumn >
+      </ListColumn>
       <></>
       <ListColumn align="left">
         <b>Amount:</b>
-        <br></br>
+        <br />
         {props.element.amount}
-      </ListColumn >
+      </ListColumn>
       <ListColumn align="left">
-          <b>Buy Debt Position:</b>
-        <br></br>
-        <Button
-          variant="outlined"
-        >
-         Buy
-        </Button>
-      </ListColumn >
+        <b>Buy Debt Position:</b>
+        <br />
+        <Button variant="outlined">Buy</Button>
+      </ListColumn>
     </ListItem>
   );
 };

@@ -16,9 +16,9 @@ import { useRootStore } from 'src/store/root';
 import { getNetworkConfig, isFeatureEnabled } from 'src/utils/marketsAndNetworksConfig';
 import { GENERAL } from 'src/utils/mixPanelEvents';
 
-import { TxModalTitle } from './TxModalTitle';
 import { ChangeNetworkWarning } from '../Warnings/ChangeNetworkWarning';
 import { TxErrorView } from './Error';
+import { TxModalTitle } from './TxModalTitle';
 
 export interface ModalWrapperProps {
   underlyingAsset?: string;
@@ -50,54 +50,51 @@ export const ModalWrapperIndie: React.FC<{
   requiredPermission,
   keepWrappedSymbol,
 }) => {
-    const { readOnlyModeAddress } = useWeb3Context();
-    const currentMarketData = useRootStore((store) => store.currentMarketData);
-    const currentNetworkConfig = useRootStore((store) => store.currentNetworkConfig);
-    const { walletBalances } = useWalletBalances(currentMarketData);
-    const { txError, mainTxState } = useModalContext();
-    const { permissions } = usePermissions();
+  const { readOnlyModeAddress } = useWeb3Context();
+  const currentMarketData = useRootStore((store) => store.currentMarketData);
+  const currentNetworkConfig = useRootStore((store) => store.currentNetworkConfig);
+  const { walletBalances } = useWalletBalances(currentMarketData);
+  const { txError, mainTxState } = useModalContext();
+  const { permissions } = usePermissions();
 
+  if (txError && txError.blocking) {
+    return <TxErrorView txError={txError} />;
+  }
 
-    if (txError && txError.blocking) {
-      return <TxErrorView txError={txError} />;
-    }
+  if (
+    requiredPermission &&
+    isFeatureEnabled.permissions(currentMarketData) &&
+    !permissions.includes(requiredPermission) &&
+    currentMarketData.permissionComponent
+  ) {
+    return <>{currentMarketData.permissionComponent}</>;
+  }
 
-    if (
-      requiredPermission &&
-      isFeatureEnabled.permissions(currentMarketData) &&
-      !permissions.includes(requiredPermission) &&
-      currentMarketData.permissionComponent
-    ) {
-      return <>{currentMarketData.permissionComponent}</>;
-    }
+  // const poolReserve = reserves.find((reserve) => {
+  //   if (underlyingAsset.toLowerCase() === API_ETH_MOCK_ADDRESS.toLowerCase())
+  //     return reserve.isWrappedBaseAsset;
+  //   return underlyingAsset === reserve.underlyingAsset;
+  // }) as ComputedReserveData;
 
-    // const poolReserve = reserves.find((reserve) => {
-    //   if (underlyingAsset.toLowerCase() === API_ETH_MOCK_ADDRESS.toLowerCase())
-    //     return reserve.isWrappedBaseAsset;
-    //   return underlyingAsset === reserve.underlyingAsset;
-    // }) as ComputedReserveData;
+  // const userReserve = user?.userReservesData.find((userReserve) => {
+  //   if (underlyingAsset.toLowerCase() === API_ETH_MOCK_ADDRESS.toLowerCase())
+  //     return userReserve.reserve.isWrappedBaseAsset;
+  //   return underlyingAsset === userReserve.underlyingAsset;
+  // }) as ComputedUserReserveData;
 
-    // const userReserve = user?.userReservesData.find((userReserve) => {
-    //   if (underlyingAsset.toLowerCase() === API_ETH_MOCK_ADDRESS.toLowerCase())
-    //     return userReserve.reserve.isWrappedBaseAsset;
-    //   return underlyingAsset === userReserve.underlyingAsset;
-    // }) as ComputedUserReserveData;
+  const symbol = 'GHO';
 
-    const symbol = "GHO"
-
-    return (
-      // <AssetCapsProvider asset={poolReserve}>
-      <>
-
-        <TxModalTitle title={title} symbol={undefined} />
-        {children({
-          nativeBalance: walletBalances[API_ETH_MOCK_ADDRESS.toLowerCase()]?.amount || '0',
-          tokenBalance: walletBalances["0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2".toLowerCase()]?.amount || '0',
-          symbol,
-          underlyingAsset,
-        })}
-
-
-      </>
-    );
-  };
+  return (
+    // <AssetCapsProvider asset={poolReserve}>
+    <>
+      <TxModalTitle title={title} symbol={undefined} />
+      {children({
+        nativeBalance: walletBalances[API_ETH_MOCK_ADDRESS.toLowerCase()]?.amount || '0',
+        tokenBalance:
+          walletBalances['0x8a4FcC53C2D19C69AEB51dfEF05a051d40927CE2'.toLowerCase()]?.amount || '0',
+        symbol,
+        underlyingAsset,
+      })}
+    </>
+  );
+};

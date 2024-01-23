@@ -1,19 +1,15 @@
-import {
-  ApproveDelegationType,
-  InterestRate,
-} from '@aave/contract-helpers';
+import { ApproveDelegationType, InterestRate } from '@aave/contract-helpers';
 import { Trans } from '@lingui/macro';
 import { BoxProps } from '@mui/material';
 import React, { useState } from 'react';
 import { ComputedReserveData } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useModalContext } from 'src/hooks/useModal';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
 import { useRootStore } from 'src/store/root';
 import { getErrorTextFromError, TxAction } from 'src/ui-config/errorMapping';
 
 import { TxActionsWrapper } from '../TxActionsWrapper';
-import { ethers } from 'ethers';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export interface BorrowActionsProps extends BoxProps {
   poolReserve: ComputedReserveData;
@@ -28,10 +24,7 @@ export interface BorrowActionsProps extends BoxProps {
 export const BorrowActionsBurra = React.memo(
   ({
     symbol,
-    poolReserve,
     amountToBorrow,
-    poolAddress,
-    interestRateMode,
     isWrongNetwork,
     blocked,
     sx,
@@ -64,13 +57,12 @@ export const BorrowActionsBurra = React.memo(
     const { sendTx } = useWeb3Context();
     const [requiresApproval, setRequiresApproval] = useState<boolean>(false);
     const [approvedAmount, setApprovedAmount] = useState<ApproveDelegationType | undefined>();
-    const { buildApproveCollateralTx, buildBorrowGHOTx } = useBurra()
-
+    const { buildApproveCollateralTx, buildBorrowGHOTx } = useBurra();
 
     const approval = async () => {
       try {
-        const DAI_ADDRESS = "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357"
-        const tx = buildApproveCollateralTx(amountToBorrow, DAI_ADDRESS)
+        const DAI_ADDRESS = '0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357';
+        const tx = buildApproveCollateralTx(amountToBorrow, DAI_ADDRESS);
         if (tx) {
           const gasLimitedTx = await estimateGasLimit(tx);
           const response = await sendTx(gasLimitedTx);
@@ -94,15 +86,15 @@ export const BorrowActionsBurra = React.memo(
     };
 
     const action = async () => {
-      const ghotkn = getGHOContract()
-      const vaultContract = getVaultContract()
+      const ghotkn = getGHOContract();
+      const vaultContract = getVaultContract();
 
       try {
         setMainTxState({ ...mainTxState, loading: true });
-        await approval()
+        await approval();
 
-        const tx = buildBorrowGHOTx(amountToBorrow)
-     
+        const tx = buildBorrowGHOTx(amountToBorrow);
+
         if (tx) {
           const gasLimitedTx = await estimateGasLimit(tx);
           const response = await sendTx(gasLimitedTx);
@@ -114,15 +106,13 @@ export const BorrowActionsBurra = React.memo(
           });
 
           addTransaction(response.hash, {
-            action: "Vault Borrow GHO",
+            action: 'Vault Borrow GHO',
             txState: 'success',
             asset: ghotkn.address,
             amount: amountToBorrow,
-            assetName: "GHO",
+            assetName: 'GHO',
           });
-
         }
-
 
         // queryClient.invalidateQueries({ queryKey: queryKeysFactory.pool });
         // refetchPoolData && refetchPoolData();
@@ -137,7 +127,6 @@ export const BorrowActionsBurra = React.memo(
         });
       }
     };
-
 
     return (
       <TxActionsWrapper
@@ -158,4 +147,3 @@ export const BorrowActionsBurra = React.memo(
     );
   }
 );
-

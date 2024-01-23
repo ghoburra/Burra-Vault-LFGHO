@@ -13,6 +13,7 @@ import { Row } from 'src/components/primitives/Row';
 import { StyledTxModalToggleButton } from 'src/components/StyledToggleButton';
 import { StyledTxModalToggleGroup } from 'src/components/StyledToggleButtonGroup';
 import { useAppDataContext } from 'src/hooks/app-data-provider/useAppDataProvider';
+import { useBurra } from 'src/hooks/burra/useBurra';
 import { useAssetCaps } from 'src/hooks/useAssetCaps';
 import { useModalContext } from 'src/hooks/useModal';
 import { useProtocolDataContext } from 'src/hooks/useProtocolDataContext';
@@ -35,7 +36,6 @@ import {
 import { BorrowActions } from './BorrowActions';
 import { BorrowAmountWarning } from './BorrowAmountWarning';
 import { ParameterChangewarning } from './ParameterChangewarning';
-import { useBurra } from 'src/hooks/burra/useBurra';
 
 export enum ErrorType {
   STABLE_RATE_NOT_ENABLED,
@@ -122,7 +122,7 @@ export const BorrowModalContent = ({
   const [riskCheckboxAccepted, setRiskCheckboxAccepted] = useState(false);
 
   // amount calculations
-  const maxAmountToBorrow =( bucketCap?.level || 1000).toString()
+  const maxAmountToBorrow = (bucketCap?.level || 1000).toString();
 
   // We set this in a useEffect, so it doesn't constantly change when
   // max amount selected
