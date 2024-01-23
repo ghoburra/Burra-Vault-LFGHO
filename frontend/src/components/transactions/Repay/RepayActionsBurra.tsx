@@ -75,6 +75,7 @@ export const RepayActionsBurra = ({
     setGasLimit,
     setLoadingTxns,
     setApprovalTxState,
+    setSuccessTx
   } = useModalContext();
   const { currentAccount } = useWeb3Context();
   const [requiresPermission, setRequiresPermission] = useState(false);
@@ -109,6 +110,7 @@ export const RepayActionsBurra = ({
 
   const action = async () => {
     try {
+      setSuccessTx(false)
       setMainTxState({ ...mainTxState, loading: true });
       await approval();
       const tx = buildRepayTx(amountToRepay);
@@ -128,6 +130,7 @@ export const RepayActionsBurra = ({
           amount: amountToRepay,
           assetName: symbol,
         });
+        setSuccessTx(true)
       }
     } catch (error) {
       const parsedError = getErrorTextFromError(error, TxAction.GAS_ESTIMATION, false);

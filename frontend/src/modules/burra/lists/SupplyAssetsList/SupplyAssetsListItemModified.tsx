@@ -20,7 +20,7 @@ export const SupplyAssetsListItemModified = (props: {
       <ListColumn align="left">
         <b>APY:</b>
         <br />
-        1.15%
+        3.03%
       </ListColumn>
       <></>
       <ListColumn align="left">
@@ -31,7 +31,9 @@ export const SupplyAssetsListItemModified = (props: {
       <ListColumn align="left">
         <b>Buy Debt Position:</b>
         <br />
-        <Button variant="outlined">Buy</Button>
+        <Button variant="outlined"
+        onClick={()=> alert("You can't buy this position because the position borrow rate is equal to the current one")}
+        >Buy</Button>
       </ListColumn>
     </ListItem>
   );

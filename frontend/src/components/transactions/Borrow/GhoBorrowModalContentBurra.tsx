@@ -322,16 +322,6 @@ export const GhoBorrowModalContentBurra = ({
 
       {txError && <GasEstimationError txError={txError} />}
 
-      {/* {displayRiskCheckbox && (
-        <BorrowAmountWarning
-          riskCheckboxAccepted={riskCheckboxAccepted}
-          onRiskCheckboxChange={() => {
-            setRiskCheckboxAccepted(!riskCheckboxAccepted);
-          }}
-        />
-      )} */}
-
-      <ParameterChangewarning underlyingAsset={underlyingAsset} />
 
       <BorrowActionsBurra
         poolReserve={poolReserve}
